@@ -6,6 +6,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3000 ;
 
 const users = require('./routes/user.routes');
+const auth = require('./routes/auth.routes');
 //middleware
 
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(express.json());
 //routes
 
 app.use('/api/v1/users', users);
+app.use('/auth', auth);
 //authenticate user
 // app.use('/register', signup);
 // app.use('/login', login);
