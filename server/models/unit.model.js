@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const SubjectSchema = new mongoose.Schema({
-    subjectname:{
+const UnitSchema = new mongoose.Schema({
+    unitname:{
         type: String,
         trim: true,
         required: true
@@ -11,15 +11,19 @@ const SubjectSchema = new mongoose.Schema({
 
     },
     course: { 
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Course' 
     },
-    units: [
+    subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Subject'
+    },
+    materials: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Unit' 
+            ref: 'Material' 
         }
     ]
 })
 
-module.exports = mongoose.model('Subject', SubjectSchema);
+module.exports = mongoose.model('Unit', UnitSchema);

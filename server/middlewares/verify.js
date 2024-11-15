@@ -36,7 +36,7 @@ const verify = async (req, res, next) => {
 }
 
 
-const verifyRole = (req, res, next) => {
+const verifyAdmin = (req, res, next) => {
     try {
         const {username, password, role} = req.user; // we have access to the user object from the request
         // const { role } = user; // extract the user role
@@ -45,7 +45,30 @@ const verifyRole = (req, res, next) => {
         if (role !== "admin") {
             return res.status(401).json({
                 status: "failed",
-                message: "You are not authorized to view this page.",
+                message: "You are not authorized as a admin to view this page.",
+            });
+        }
+        next(); // continue to the next middleware or function
+    } catch (err) {
+        res.status(500).json({
+            status: "error",
+            code: 500,
+            data: [],
+            message: "Internal Server Error lol",
+        });
+    }
+}
+
+const verifyProfessor = (req, res, next) => {
+    try {
+        const {username, password, role} = req.user; // we have access to the user object from the request
+        // const { role } = user; // extract the user role
+        // check if user has no advance privileges
+        // return an unathorized response
+        if (role !== "professor") {
+            return res.status(401).json({
+                status: "failed",
+                message: "You are not authorized as a professor to view this page.",
             });
         }
         next(); // continue to the next middleware or function
@@ -61,5 +84,6 @@ const verifyRole = (req, res, next) => {
 
 module.exports = {
     verify,
-    verifyRole
+    verifyAdmin,
+    verifyProfessor
 }

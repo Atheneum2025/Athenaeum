@@ -2,6 +2,8 @@ const User = require('../models/user.model');
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
+// This controller function checks if the user is a valid user or not
+
 const logInUser = async (req, res) => {
     const { username, password, role } = req.body;
 

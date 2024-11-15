@@ -13,7 +13,7 @@ const CourseSchema = new mongoose.Schema({
     subjects: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Subjects' 
+            ref: 'Subject' 
         }
     ]
 })
