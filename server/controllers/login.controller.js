@@ -7,6 +7,10 @@ const bcrypt = require('bcryptjs')
 const logInUser = async (req, res) => {
     const { username, password, role } = req.body;
 
+// username can be repeated , changes to be done later
+// email will be unique to all
+// signUp will be through email and password only
+
     try {
         let user = await User.findOne({ username });
         if (!user) {

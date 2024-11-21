@@ -82,7 +82,7 @@ app.get('/api', (req,res)=>{
 const start = async () =>{
     try {
         
-        // await connectDB(process.env.MONGO_URI);
+        await connectDB(process.env.MONGO_URI);
         app.listen(PORT, (err) => {
             if(err) console.log(err);
             console.log(`listening to port ${PORT}`);

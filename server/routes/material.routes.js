@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const router = express.Router();
 
 const {createMaterial, getMaterial, getAllMaterials, deleteMaterial, updateMaterial} = require('../controllers/material.controller');

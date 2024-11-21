@@ -1,6 +1,7 @@
 const User = require('../models/user.model');
 const asyncWrapper = require('../middlewares/async');
 
+//All these routes are only for the admin
 const getAllUsers = asyncWrapper(async (req, res) => {
 
     const users = await User.find({})
@@ -8,6 +9,7 @@ const getAllUsers = asyncWrapper(async (req, res) => {
 
 })
 
+//this createUser route is not required
 const createUser = asyncWrapper(async (req, res) => {
 
     const user = await User.create(req.body);
@@ -45,6 +47,7 @@ const updateUser = asyncWrapper(async (req, res) => {
 
 })
 
+// this route will be accessible to all users
 const deleteUser = asyncWrapper(async (req, res) => {
 
     const { id: UserID } = req.params;

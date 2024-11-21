@@ -25,7 +25,7 @@ const MaterialSchema = new mongoose.Schema({
     unit: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Unit'
-    }
+    },
 })
 
 module.exports = mongoose.model('Material', MaterialSchema);
