@@ -4,14 +4,29 @@ const Stream = require('stream');
 const fs = require('fs');
 const path = require('path');
 const Material = require('../models/material.model');
+const Unit = require('../models/unit.model')
 const { } = require('mongoose');
-const asyncWrapper = require('../middlerware/async');
+const asyncWrapper = require('../middlewares/async');
 
-
+// done
 const createMaterial = asyncWrapper(async (req, res) => {
 
-    const material = await Material.create(req.body);
-    res.status(201).json({ material });
+    const { materialname, description } = req.body;
+    const {courseName, subjectName, unitName} = req.params;
+    console.log(unitName)
+    const unit = await Unit.findOne({unitname : unitName});
+    if (!unit) {
+      return res.status(404).json({ error: 'Unit not found' });
+    }
+    // const subjects = await Subjects.create(req.body)
+    console.log(req.body)
+    const newMaterial = new Material({ materialname, description, course: courseName, subject: subjectName, unit: unitName });
+    await newMaterial.save();
+
+    // Add the subject to the course
+    unit.materials.push(newMaterial._id);
+    await unit.save();
+    res.status(201).json({ newMaterial })
 
     //storage
 
@@ -49,15 +64,15 @@ const createMaterial = asyncWrapper(async (req, res) => {
 
 })
 
-// this login is for getting a file from the cloud
+// this function is for getting a file from the cloud
+// done
 const getMaterial = asyncWrapper(async (req, res) => {
 
-    const { id: materialId } = req.params;
-    console.log(materialId);
-    const material = await Material.findOne({ _id: materialId });
+    const {coursename, subjectname, unitName, materialName} = req.params;
+    const material = await Material.findOne({materialname: materialName })
 
-    if (!material) {
-        return res.status(404).json({ mag: `no material with id : ${materialId}` });
+    if (material.unit !== unitName) {
+        return res.status(404).json({ msg: `no material with name : ${materialName}` })
     }
 
     // for video streaming
@@ -90,15 +105,17 @@ const getMaterial = asyncWrapper(async (req, res) => {
     //         fs.createReadStream(videoPath).pipe(res);
     //     }
     // };
-    res.status(200).json({ material });
+    res.status(200).json({ material })
 
 
 })
 
+// done
 const getAllMaterials = asyncWrapper(async (req, res) => {
 
-    const materials = await Course.find({})
-    res.status(200).json({ courses: materials });
+    const {courseName, subjectName, unitName} = req.params
+    const materials = await Material.find({course: courseName, subject: subjectName, unit: unitName});
+    res.status(200).json({ materials: materials });
 
 })
 

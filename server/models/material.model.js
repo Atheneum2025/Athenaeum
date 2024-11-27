@@ -15,17 +15,23 @@ const MaterialSchema = new mongoose.Schema({
         required: false
     },
     course: { 
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Course' 
     },
     subject: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Subject'
     },
     unit: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Unit'
     },
+    uploadedBy: {
+        type: String,
+        ref: 'User'
+    }
 })
+
+
 
 module.exports = mongoose.model('Material', MaterialSchema);

@@ -1,29 +1,52 @@
 const mongoose = require('mongoose');
+const Unit = require('../models/unit.model');
+const Material = require('../models/material.model');
 const SubjectSchema = new mongoose.Schema({
-    subjectname:{
+    subjectname: {
         type: String,
         trim: true,
         required: true
     },
-    description:{
+    description: {
         type: String,
         required: true
 
     },
-    year:{
+    year: {
         type: String,
         required: false
     },
-    course: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Course' 
+    course: {
+        type: String,
+        ref: 'Course'
     },
     units: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Unit' 
+            ref: 'Unit'
         }
     ]
+})
+
+SubjectSchema.pre('findOneAndDelete', async function (next) {
+    const subjectId = this.getQuery().subjectname;
+    console.log(subjectId)
+    await Unit.deleteMany({ subject: subjectId });
+    console.log(`Deleted all subjects related to course ID: ${subjectId}`)
+    next();
+})
+
+SubjectSchema.pre('findOneAndUpdate', async function (next) {
+    const subjectId = this.getQuery().subjectname;
+    const updateData = this.getUpdate(); // Get the update data (e.g., coursename, description)
+
+    const newSubjectName = updateData.subjectname;
+    const newDescription = updateData.description;
+    console.log(subjectId);
+    await Unit.updateMany({ subject: subjectId }, { $set: { subject: newSubjectName } })
+    await Material.updateMany({subject: subjectId}, { $set: {subject: newSubjectName}});
+
+    next();
 })
 
 module.exports = mongoose.model('Subject', SubjectSchema);

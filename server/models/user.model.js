@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Material = require('../models/material.model')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -32,6 +33,16 @@ UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
+})
+
+UserSchema.pre('findOneAndUpdate', async function (next) {
+    const userId = this.getQuery().username;
+    const updateData = this.getUpdate();
+
+    const newUserName = updateData.username;
+    
+    console.log(userId);
+    await Material.updateMany({uploadedBy: userId}, { $set: {uploadedBy: newUserName}});
 })
 
 UserSchema.methods.generateAccessJWT = function () {

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Material = require('./material.model');
 const UnitSchema = new mongoose.Schema({
     unitname:{
         type: String,
@@ -11,11 +12,11 @@ const UnitSchema = new mongoose.Schema({
 
     },
     course: { 
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Course' 
     },
     subject: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'Subject'
     },
     materials: [
@@ -24,6 +25,15 @@ const UnitSchema = new mongoose.Schema({
             ref: 'Material' 
         }
     ]
+})
+
+UnitSchema.pre('findOneAndUpdate', async function (next) {
+    const unitId = this.getQuery().unitname;
+    const updateData = this.getUpdate();
+
+    const newUnitName = updateData.unitname;
+    console.log(unitId);
+    await Material.updateMany({unit: unitId},{ $set: {unit: newUnitName}})
 })
 
 module.exports = mongoose.model('Unit', UnitSchema);
