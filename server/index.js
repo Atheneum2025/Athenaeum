@@ -1,6 +1,8 @@
 const express = require('express');
+const cloudinary = require('cloudinary');
 const app = express();
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
@@ -11,10 +13,11 @@ const PORT = process.env.PORT || 3000;
 const users = require('./routes/user.routes');
 const auth = require('./routes/auth.routes');
 const course = require('./routes/course.routes');
+// const {sendMessageToAdmin} = require("./utils/contactUs.utils.js")
 // const upload = require('./routes/upload.routes');
 // const download = require('./routes/download.routes');
 
-const { verify, verifyAdmin, verifyProfessor } = require('./middlewares/verify');
+const { verifyJWT, verifyAdmin, verifyProfessor } = require('./middlewares/verify.js');
 
 // roles
 const ROLES = {
@@ -25,6 +28,8 @@ const ROLES = {
 //middleware
 
 app.use(cors());
+app.use(cookieParser())
+
 // app.use(
 //     cors({
 //         origin:["https://localhost:3000","https://localhost:5173"]
@@ -37,86 +42,49 @@ app.use(cors());
 //     next();
 // })
 app.use(express.json());
-app.use(express.urlencoded({extended: true}))
-app.use("/uploads",express.static("uploads"))
+app.use(express.urlencoded({ extended: true }))
+app.use("/uploads", express.static("uploads"))
 
-// multer middlewares
-const storage = multer.diskStorage({
-    destination: function(req, res, cb){
-        cb(null, "./uploads")
-    },
-    filename: function(req, file, cb){
-        cb(null, file.fieldname +  "-" + path.extname(file.originalname))
-    }
-})
 
-// multer configuration
-const upload = multer({storage: storage})
+// const upload = multer(); // Configure multer for form-data parsing
+
+// Middleware to parse form-data
+// app.use(upload.none());
 //routes
 
-app.use('/api/v1/users', users, verify, verifyAdmin);
+app.use('/api/v1/users', users, verifyAdmin);
 //authenticate user
 app.use('/auth', auth);
 
 //uploads
-// app.use('/upload', upload, verify, verifyProfessor);
-// app.use('/download', download, verify);
+// app.use('/upload', upload, verifyProfessor);
+// app.use('/download', download);
+
+// app.post("/contact", verifyJWT, sendMessageToAdmin);
 
 
-app.get("/api/v1/users", verify, (req, res) => {
-    try {
-        res.status(200).json({
-            status: "success",
-            message: "Welcome to the your Dashboard User!",
-        });
-    }
-    catch (error) {
-        res.status(500).json({ error: error });
-    }
-});
 
-app.get("/api/v1/admin", verify, verifyAdmin, (req, res) => {
-    try {
-        res.status(200).json({
-            status: "success",
-            message: "Welcome to your Dashboard Admin!",
-        });
-    }
-    catch (error) {
-        res.status(500).json({ error: error })
-    }
-});
 
-app.get("/api/v1/professor", verify, verifyProfessor, (req, res) => {
-    try {
-        res.status(200).json({
-            status: "success",
-            message: "Welcome to your Dashboard Professor!"
-        });
-    }
-    catch (error) {
-        res.status(500).json({ error: error })
-    }
-})
 
 // app.use('/search', search);
 
-app.use('/api/v1/courses', course);
+app.use('/api/v1/course/', course);
 app.get('/api', (req, res) => {
     res.json({ message: 'hello from rishon server' })
     console.log('hit')
 })
 
 
-app.post('/upload', upload.single('file'), function(req,res){
-    
-    const videoPath = req.file.path
-    const outputPath = `./uploads/courses/223`
-    const hlsPath = `${outputPath}/index.m3u8`
-    console.log("hlsPath", hlsPath);
+// app.post('/upload', upload.single('file'), function (req, res) {
+
+//     const videoPath = req.file.path
+//     const outputPath = `./uploads/courses/223`
+//     const hlsPath = `${outputPath}/index.m3u8`
+//     console.log("hlsPath", hlsPath);
 
 
-;})
+//     ;
+// })
 app.get('/video', (req, res) => {
     console.log('hit')
     const videoPath = path.resolve(__dirname, 'public/videoFile.mp4');
@@ -154,7 +122,7 @@ const start = async () => {
         await connectDB(process.env.MONGO_URI);
         app.listen(PORT, (err) => {
             if (err) console.log(err);
-            console.log(`listening to port ${PORT}`);
+            console.log(`listening to port ${process.env.PORT}`);
         });
     } catch (error) {
         console.log(error);

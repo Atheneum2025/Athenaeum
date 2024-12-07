@@ -26,7 +26,11 @@ const SubjectSchema = new mongoose.Schema({
             ref: 'Unit'
         }
     ]
-})
+},
+{
+    timestamps:true
+}
+)
 
 SubjectSchema.pre('findOneAndDelete', async function (next) {
     const subjectId = this.getQuery().subjectname;

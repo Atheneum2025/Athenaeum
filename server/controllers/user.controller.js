@@ -1,5 +1,6 @@
 const User = require('../models/user.model');
 const asyncWrapper = require('../middlewares/async');
+const mongoose = require("mongoose");
 
 //All these routes are only for the admin
 const getAllUsers = asyncWrapper(async (req, res) => {
@@ -59,10 +60,67 @@ const deleteUser = asyncWrapper(async (req, res) => {
 
 })
 
+const getUserViewHistory = asyncWrapper( async (req, res) => {
+    const userId = req.user?._id;
+console.log(userId)
+    const history = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user.id)
+            }
+        },
+        {
+          $unwind: "$viewHistory"
+        },
+        {
+          $lookup: {
+                  from: "materials",
+            localField: "viewHistory",
+            foreignField: "_id",
+            as: "History"
+          }
+        },
+        {
+          $unwind: "$History"
+        },
+        {
+          $project: {
+            user: "$username",
+            MaterialName: "$History.materialname",
+            course: "$History.course",
+            subject: "$History.subject",
+            unit: "$History.unit"
+          }
+        }
+      ])
+
+    return res
+        .status(200)
+        .json({ history : history } )
+})
+
+const deleteAllUserViewHistory = asyncWrapper( async (req, res) => {
+    const userId = req.user._id;
+
+    const deletedHistory = await User.updateOne(
+        {_id: userId},
+        {
+            $set: { viewHistory: []}
+        }
+    )
+
+    if(!(deletedHistory.modifiedCount > 0)){
+        return res.status(400).json({message: "Cannot delete history"})
+    }
+    return res.status(200).json({ message: "History Deleted "});
+})
+
 module.exports = {
     getAllUsers,
     createUser,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserViewHistory,
+    deleteAllUserViewHistory
 }

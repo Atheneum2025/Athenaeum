@@ -25,7 +25,11 @@ const UnitSchema = new mongoose.Schema({
             ref: 'Material' 
         }
     ]
-})
+},
+{
+    timestamps: true,
+}
+)
 
 UnitSchema.pre('findOneAndUpdate', async function (next) {
     const unitId = this.getQuery().unitname;

@@ -1,37 +1,49 @@
-const mongoose = require('mongoose');
-const MaterialSchema = new mongoose.Schema({
-    materialname:{
-        type: String,
-        trim: true,
-        required: true
+const mongoose = require("mongoose");
+const MaterialSchema = new mongoose.Schema(
+  {
+    materialname: {
+      type: String,
+      trim: true,
+      required: true,
     },
-    description:{
-        type: String,
-        required: false
-
+    description: {
+      type: String,
+      required: false,
     },
-    fileType:{
-        type: String,
-        required: false
+    url: {
+      type: String,
     },
-    course: { 
-        type: String,
-        ref: 'Course' 
+    fileType: {
+      type: String,
+      required: false,
+    },
+    course: {
+      type: String,
+      ref: "Course",
     },
     subject: {
-        type: String,
-        ref: 'Subject'
+      type: String,
+      ref: "Subject",
     },
     unit: {
-        type: String,
-        ref: 'Unit'
+      type: String,
+      ref: "Unit",
     },
-    uploadedBy: {
-        type: String,
-        ref: 'User'
-    }
-})
+    owner: {
+      type: String,
+      ref: "User",
+    },
+    views: {
+      type:Number,
+      default: 0,
+    },
+    materialURL: {
+      type: String, // cloudinary url
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-
-
-module.exports = mongoose.model('Material', MaterialSchema);
+module.exports = mongoose.model("Material", MaterialSchema);

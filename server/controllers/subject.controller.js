@@ -1,7 +1,7 @@
-const Subject = require('../models/subject.model');
-const Course = require('../models/course.model')
+const Subject = require('../models/subject.model.js');
+const Course = require('../models/course.model.js')
 const { } = require('mongoose');
-const asyncWrapper = require('../middlewares/async');
+const asyncWrapper = require('../middlewares/async.js');
 
 // done
 const createSubject = asyncWrapper(async (req, res) => {
@@ -34,7 +34,7 @@ const getSubject = asyncWrapper(async (req, res) => {
 
     const { courseName, subjectName } = req.params;
     const subject = await Subject.findOne({ subjectname: subjectName })
-    console.log(subject)
+    console.log(subject.course)
     console.log(courseName)
     if (subject.course !== courseName) {
         return res.status(404).json({ mag: `no subject with name : ${subjectName}` })
@@ -81,20 +81,6 @@ const deleteSubject = asyncWrapper(async (req, res) => {
         return res.status(404).json({ error: 'Course not found' });
     }
 
-    // Find the subject index in the subjects array
-    // const subjectIndex = course.subjects.findIndex(
-    //     (subject) => subject._id.toString() === subjectId
-    // );
-
-    // if (subjectIndex === -1) {
-    //     return res.status(404).json({ error: 'Subject not found in course' });
-    // }
-
-    // // Remove the subject from the array
-    // course.subjects.splice(subjectIndex, 1);
-
-    // Save the updated course document
-    // await course.save();
     const subject = await Subject.findOneAndDelete({ subjectname: subjectName })
     if (!subject) {
         return res.status(404).json({ mag: `no subject with id : ${subjectName}` })

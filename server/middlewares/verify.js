@@ -1,44 +1,31 @@
 const User = require('../models/user.model');
 const jwt = require('jsonwebtoken')
+const asyncWrapper = require('../middlewares/async.js')
 
-const verify = async (req, res, next) => {
-    try{
-        const authHeader = req.headers["cookie"]; // get the session cookie from request header
 
-        if (!authHeader) return res.sendStatus(401); // if there is no cookie from request header, send an unauthorized response.
-        const cookie = authHeader.split("=")[1]; // If there is, split the cookie string to get the actual jwt
+const verifyJWT = asyncWrapper( async (req, res, next)=>{
+    const token = req.cookies?.accessToken || req.headers["Authorisation"]?.replace("Bearer ", "")
 
-        // Verify using jwt to see if token has been tampered with or if it has expired.
-        // that's like checking the integrity of the cookie
-        jwt.verify(cookie, 'secretkey', async (err, decoded) => {
-            if (err) {
-                // if token has been altered or has expired, return an unauthorized error
-                return res
-                    .status(401)
-                    .json({ message: "This session has expired. Please login" });
-            }
-
-            const { id } = decoded; // get user id from the decoded token
-            const user = await User.findById(id); // find user by that `id`
-            const { password, ...data } = user._doc; // return user object without the password
-            req.user = data; // put the data object into req.user
-            next();
-        });
+    if(!token){
+        res.status(401).json({message: "Unauthorised request"})
     }
-    catch(error){
-        res.status(500).json({
-            status: "error",
-            code: 500,
-            data: [],
-            message: "Internal Server Error",
-        });
+
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+
+    const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
+
+    if(!user){
+        res.send(401).json({ message: "invalid access token"})
     }
-}
+
+    req.user = user;
+    next();
+})
 
 
 const verifyAdmin = (req, res, next) => {
     try {
-        const {username, password, role} = req.user; // we have access to the user object from the request
+        const { role } = req.user; // we have access to the user object from the request
         // const { role } = user; // extract the user role
         // check if user has no advance privileges
         // return an unathorized response
@@ -61,7 +48,7 @@ const verifyAdmin = (req, res, next) => {
 
 const verifyProfessor = (req, res, next) => {
     try {
-        const {username, password, role} = req.user; // we have access to the user object from the request
+        const { role } = req.user; // we have access to the user object from the request
         // const { role } = user; // extract the user role
         // check if user has no advance privileges
         // return an unathorized response
@@ -82,8 +69,20 @@ const verifyProfessor = (req, res, next) => {
     }
 }
 
+const uploadPermission = async (req, res, next) => {
+    try {
+        const { userId, role } = req.user;
+
+        const user = await User.findById(userId);
+        console.log(user.permissions);
+        
+    } catch (error) {
+        
+    }
+}
+
 module.exports = {
-    verify,
     verifyAdmin,
-    verifyProfessor
+    verifyProfessor,
+    verifyJWT
 }
