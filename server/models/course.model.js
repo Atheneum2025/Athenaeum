@@ -11,7 +11,7 @@ const CourseSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
     subjects: [
       {
@@ -19,6 +19,12 @@ const CourseSchema = new mongoose.Schema(
         ref: "Subject",
       },
     ],
+    keywords: {
+      type: String,
+    },
+    acronym:{
+      type: String
+    }
   },
   {
     timestamps: true,

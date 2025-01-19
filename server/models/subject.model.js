@@ -25,7 +25,10 @@ const SubjectSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Unit'
         }
-    ]
+    ],
+    keywords: {
+        type: String,
+    }
 },
 {
     timestamps:true

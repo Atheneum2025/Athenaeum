@@ -3,17 +3,17 @@ const router = express.Router();
 const { createSubject, getSubject, getAllSubjects, deleteSubject, updateSubject } = require('../controllers/subject.controller');
 const { createCourse, getCourse, getAllCourses, deleteCourse, updateCourse } = require('../controllers/course.controller');
 const { createUnit, getAllUnits, getUnit, deleteUnit, updateUnit } = require('../controllers/unit.controller');
-const { createMaterial, displayMaterial, getAllMaterials, deleteMaterial, updateMaterial } = require('../controllers/material.controller');
+const { uploadMaterial, displayMaterial, getAllMaterials, deleteMaterial, updateMaterial, togglePublishMaterial } = require('../controllers/material.controller');
 const { toggleMaterialSave, getAllSavedMaterials } = require("../controllers/savedMaterial.controller.js")
 const { upload } = require("../middlewares/multer.middleware.js")
 
-const { verifyJWT, verifyProfessor } = require("../middlewares/verify.js")
+const { verifyJWT, verifyProfessor, verifyAdmin } = require("../middlewares/verify.js")
 // with coursename
 router.route('/')
-    .get(verifyJWT, getAllCourses)
-    .post(verifyJWT, verifyProfessor, createCourse)
+    .get( getAllCourses)
+    .post(verifyJWT, verifyAdmin, createCourse)
 router.route('/:courseName')
-    .get(verifyJWT, getCourse)
+    .get(getCourse)
     .patch(verifyProfessor, updateCourse)
     .delete(verifyProfessor, deleteCourse)
 router.route('/:courseName/subject')
@@ -31,7 +31,7 @@ router.route('/:courseName/subject/:subjectName/unit/:unitName')
     .patch(updateUnit)
     .delete(deleteUnit)
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material')
-    .post(upload.single('file'), createMaterial)
+    .post(verifyJWT, upload.single('file'), uploadMaterial)
     .get(getAllMaterials);
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName')
     .get(verifyJWT, displayMaterial)
@@ -40,7 +40,8 @@ router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materia
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/save')
     .post(verifyJWT, toggleMaterialSave)
     .get(verifyJWT, getAllSavedMaterials);
-
+// router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/status')
+//     .put(verifyJWT, togglePublishMaterial);
 
 
 // with id

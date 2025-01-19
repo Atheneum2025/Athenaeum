@@ -2,42 +2,47 @@
 const User = require("../models/user.model.js");
 const Material = require("../models/material.model.js");
 const Unit = require("../models/unit.model.js");
+const Notifications = require("../models/notifications.model.js");
 const asyncWrapper = require("../middlewares/async.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.utils.js");
-const {v2: cloudinary} = require("cloudinary");
+const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
 
 // done
 // upload
-const createMaterial = asyncWrapper(async (req, res) => {
-
+const uploadMaterial = asyncWrapper(async (req, res) => {
   const { materialName, description } = req.body;
   const { courseName, subjectName, unitName } = req.params;
- 
+
+  const userId = req.user._id;
+  console.log(userId);
+  const user = await User.findById(userId);
   const unit = await Unit.findOne({ unitname: unitName });
   if (!unit) {
-    return res.status(404).json({ error: "Unit not found" });
+    return res.status(404).json({ message: "Unit not found" });
   }
 
   const materialLocalPath = req.file?.path;
-  const fileSize = req.file?.size;
-  console.log(req.file.mimetype)
-  console.log(fileSize);
+
   // mimetype: 'image/png',
   // public_id: 'mjen25va26nb9nqr5o2x',
   // url: 'http://res.cloudinary.com/dcfvkgo4a/image/upload/v1733170343/mjen25va26nb9nqr5o2x.png',
   if (!materialLocalPath) {
-    res.status(400).json({ message: "Material file local path required" });
+    return res
+      .status(400)
+      .json({ message: "Material file local path required" });
   }
 
-  
-  console.log(materialLocalPath)
+  const fileSize = req.file?.size;
+  console.log(req.file);
+  console.log(fileSize);
+
+  console.log(materialLocalPath);
   const material = await uploadOnCloudinary(materialLocalPath, fileSize);
-  
+
   if (!material) {
-    res.status(400).json({ message: "Material file required" });
+    return res.status(400).json({ message: "Material file required" });
   }
-  console.log(material)
 
   const newMaterial = new Material({
     materialname: materialName,
@@ -45,9 +50,20 @@ const createMaterial = asyncWrapper(async (req, res) => {
     course: courseName,
     subject: subjectName,
     unit: unitName,
+    owner: userId,
     materialURL: material.url,
+    materialP_id: material.public_id,
   });
   await newMaterial.save();
+  console.log(newMaterial);
+
+  // make a entry in users notification
+  const notified = new Notifications({
+    message: "Please publish this material",
+    messageBy: userId,
+    material: newMaterial._id,
+  });
+  await notified.save();
 
   // Add the subject to the course
   // unit.materials.push(newMaterial._id);
@@ -77,101 +93,121 @@ const displayMaterial = asyncWrapper(async (req, res) => {
 
   // get cloudinary url from mongodb database - material collection
 
-  // cloudinary.api.resource('nos0vbeq4twj2dhdbcjv', (error, result) => {
-  //   if (error) {
-  //     console.error('Error fetching image:', error);
-  // } else {
-  //     console.log('Image Details:', result);
-  //     console.log('Image URL:', result.secure_url); // The direct URL to the image
-  // }
-  // })
+  const materialURL = material.materialURL;
 
-  // increment view counter 
+  // try {
+  //   const response = cloudinary.url(materialURL, {
+  //     resource_type: "video",
+  //     streaming_profile: "hd",
+  //   });
+
+  //   return res.json({ hlsUrl: response });
+  // } catch (error) {
+  //   return res
+  //     .status(500)
+  //     .json({ message: "Failed to fetch chunked video", error });
+  // }
+
+  // increment view counter
   material.views = (material.views || 0) + 1;
   await material.save();
   // push viewed material to viewHistory in user model
-  user.viewHistory.push({materialId: materialName});
+  user.viewHistory.push({ materialId: materialName });
+
+  user.notifications.push({
+    message: "Please publish this",
+    messageBy: user,
+    material: material,
+  });
   await user.save();
 
-  // for video streaming
-  // if(Material.fileType == 'video'){
-  //     const videoPath = path.resolve(__dirname, 'video.mp4');
-  //     const stat = fs.statSync(videoPath);
-  //     const fileSize = stat.size;
-  //     const range = req.headers.range;
-
-  //     if(range){
-  //         const parts = range.replace(/bytes=/, '').split('-');
-  //         const start = parseInt(parts[0], 10);
-  //         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-  //         if(start >= fileSize){
-  //             res.status(416).send('requested range not satisfiable\n');
-  //             return;
-  //         }
-
-  //         const chunkSize = end - start + 1;
-  //         const file = fs.createReadStream(videoPath, {start, end});
-  //         const headers = {
-  //             'Content-Range': 'bytes ${start}-${end}/${fileSize}',
-  //             'Accept-Ranges': 'bytes',
-  //             'Content-Length': chunkSize,
-  //             'Content-Type': 'video/mp4',
-  //         };
-
-  //         res.writeHead(206, headers);
-  //         fs.createReadStream(videoPath).pipe(res);
-  //     }
-  // };
   res.status(200).json({ material });
-  // material.url for the url from cloudinary material
+});
 
-  // const result = await cloudinary.api.resource(publicId);
-  // const resourceType = result.resource_type;
-  // if(resourceType == 'video'){
-  //
-  //
-  // }
+const giveAllmaterials = asyncWrapper(async (req, res) => {
+  const materials = await Material.find({});
+  res.status(200).json({ materials });
+  console.log("get all materials");
 });
 
 // done
 // see all materials
 const getAllMaterials = asyncWrapper(async (req, res) => {
   const { courseName, subjectName, unitName } = req.params;
+  const { page = 1, limit = 10, query, sortBy, SortType, userId } = req.query;
+  const pipeline = [];
+
   const materials = await Material.find({
     course: courseName,
     subject: subjectName,
     unit: unitName,
   });
 
-  const data = await Material.aggregate([
-    {
-      
-    }
-  ])
+  // if (query) {
+  //   pipeline.push({
+  //     $search: {
+  //       index: "search-materials",
+  //       text: {
+  //         query: query,
+  //         path: ["path", "description"],
+  //       },
+  //     },
+  //   });
+  // }
+
+  // const material = await Material.aggregate([
+  //   {
+  //     $match: {
+  //       unitname: "unitName",
+  //     },
+  //   },
+  // ]);
+
+  // const data = await Material.aggregate([{}]);
   res.status(200).json({ materials: materials });
 });
 
+// test
 // delete a material
 const deleteMaterial = asyncWrapper(async (req, res) => {
   const { materialName } = req.params;
-  const material = await Material.findOneAndDelete({
-    materialname: materialName,
-  });
+
+  const material = await Material.findById(materialName);
+  if (!material) {
+    return res.status(400).json({ message: "material not found" });
+  }
+
+  if (material?.owner.toString() !== usreId.toString()) {
+    return res
+      .status(400)
+      .json({ message: "You are not authorised to delete this material" });
+  }
+  const deletedMaterial = await Material.findByIdAndDelete(materialName);
+
+  if (!deletedMaterial) {
+    return res.status(400).json({ message: "Failed to delete material" });
+  }
+
+  // delete material from cloudinary
+  //
+  await SavedMaterial.deleteMany({ materialId: materialName });
+  // const material = await Material.findOneAndDelete({
+  //   materialname: materialName,
+  // });
   if (!material) {
     return res
       .status(404)
       .json({ mag: `no material with id : ${materialName}` });
   }
-  res.status(200).json({ material });
+  res.status(200).json({ message: "material deleted successfully" });
 });
 
 // update material name
 const updateMaterial = asyncWrapper(async (req, res) => {
-  const { id: materialId } = req.params;
+  const { materialName } = req.params;
 
   const material = await Material.findOneAndUpdate(
-    { _id: materialId },
+    { _id: materialName },
     req.body,
     {
       new: true,
@@ -180,15 +216,62 @@ const updateMaterial = asyncWrapper(async (req, res) => {
   );
 
   if (!material) {
-    return res.status(404).json({ mag: `no material with id : ${materialId}` });
+    return res
+      .status(404)
+      .json({ message: `no material with id : ${materialName}` });
   }
   res.status(200).json({ material });
 });
 
+const togglePublishMaterial = asyncWrapper(async (req, res) => {
+  const { notificationId } = req.params;
+  console.log(notificationId);
+  try {
+    const notification = await Notifications.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+    const materialId = notification.material;
+
+    const material = await Material.findById(materialId);
+    console.log(materialId);
+    if (!material) {
+      return res.status(404).json({ message: "Material not found" });
+    }
+
+    const toggled = await Material.findByIdAndUpdate(
+      materialId,
+      { $set: { isPublished: !material.isPublished } },
+      { new: true }
+    );
+
+    if (!toggled) {
+      return res
+        .status(500)
+        .json({ message: "Could not change publish status" });
+    }
+
+    await Notifications.findByIdAndDelete(notificationId);
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Material publish status toggled",
+        material: toggled,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = {
-  createMaterial,
+  uploadMaterial,
   displayMaterial,
   getAllMaterials,
   deleteMaterial,
   updateMaterial,
+  giveAllmaterials,
+  togglePublishMaterial,
 };

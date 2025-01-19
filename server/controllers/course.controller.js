@@ -14,12 +14,12 @@ const createCourse = asyncWrapper(async (req, res) => {
 const getCourse = asyncWrapper(async (req, res) => {
   const { courseName } = req.params;
   console.log(courseName);
-  const course = await Course.findOne({ coursename: courseName });
+  const courses = await Course.findOne({ coursename: courseName});
 
-  if (!course) {
+  if (!courses) {
     return res.status(404).json({ msg: `no course with name : ${courseName}` });
   }
-  res.status(200).json({ course });
+  res.status(200).json({ courses });
 });
 
 // const getCourse = asyncWrapper(async (req, res) => {

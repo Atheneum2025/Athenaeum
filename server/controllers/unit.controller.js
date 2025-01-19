@@ -49,6 +49,12 @@ const getAllUnits =  asyncWrapper( async (req, res) => {
 
 })
 
+const giveAllunits = asyncWrapper(async (req, res) => {
+    const units = await Unit.find({});
+    res.status(200).json({ units });
+    console.log("get all units");
+  });
+
 const deleteUnit = asyncWrapper(async (req, res) => {
 
     // when we delete a unit , all the contents of the unit should be deleted
@@ -79,18 +85,18 @@ const updateUnit = asyncWrapper(async (req, res) => {
     // when we update a unit , all the contents of the unit should be updated
     // update subject and material
 
-    const { id: unitId } = req.params;
+    const { unitName } = req.params;
 
-    const unit = await Unit.findOneAndUpdate({ _id: unitId }, req.body, {
+    const unit = await Unit.findOneAndUpdate(unitName, req.body, {
         new: true,
         runValidators: true
     })
 
     if (!unit) {
-        return res.status(404).json({ mag: `no unit with id : ${unitId}` })
+        return res.status(404).json({ mag: `no unit with id : ${unitName}` })
     }
     res.status(200).json({ unit })
 
 })
 
-module.exports = {createUnit, getAllUnits, getUnit, deleteUnit, updateUnit};
+module.exports = {createUnit, getAllUnits, getUnit, deleteUnit, updateUnit, giveAllunits};

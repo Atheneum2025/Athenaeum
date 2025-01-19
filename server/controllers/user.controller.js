@@ -1,4 +1,5 @@
 const User = require('../models/user.model');
+const Notifications = require('../models/notifications.model')
 const asyncWrapper = require('../middlewares/async');
 const mongoose = require("mongoose");
 
@@ -74,8 +75,8 @@ console.log(userId)
         },
         {
           $lookup: {
-                  from: "materials",
-            localField: "viewHistory",
+            from: "materials",
+            localField: "viewHistory.materialId",
             foreignField: "_id",
             as: "History"
           }
@@ -115,6 +116,15 @@ const deleteAllUserViewHistory = asyncWrapper( async (req, res) => {
     return res.status(200).json({ message: "History Deleted "});
 })
 
+const getAllNotifications = asyncWrapper(async (req,res) => {
+    const notifications = await Notifications.find({});
+    res.status(200).json({notifications});
+})
+
+const deleteNotification = asyncWrapper(async (req, res) => {
+    
+})
+
 module.exports = {
     getAllUsers,
     createUser,
@@ -122,5 +132,7 @@ module.exports = {
     updateUser,
     deleteUser,
     getUserViewHistory,
-    deleteAllUserViewHistory
+    deleteAllUserViewHistory,
+    getAllNotifications,
+    deleteNotification,
 }

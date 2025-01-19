@@ -9,11 +9,13 @@ const toggleMaterialSave = asyncWrapper(async (req, res) => {
     const userId = req.user?._id;
     // take materialID from params
     const {materialName} = req.params;
-
+    console.log(materialName)
+    console.log(userId)
     // check if the save is there in saveMaterial collection
-    const isSaved = await SavedMaterial.find({ materialId: materialName, savedBy: userId});
+    const isSaved = await SavedMaterial.findOne({ materialId: materialName, savedBy: userId});
+    console.log(isSaved)
     if(isSaved){
-        await SavedMaterial.findOneAndDelete(isSaved?._id);
+        await SavedMaterial.findByIdAndDelete(isSaved?._id);
         return res.status(200).json({ isSaved: false });
     }
     // save it to the saved db 

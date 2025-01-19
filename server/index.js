@@ -13,18 +13,19 @@ const PORT = process.env.PORT || 3000;
 const users = require('./routes/user.routes');
 const auth = require('./routes/auth.routes');
 const course = require('./routes/course.routes');
+const subject = require('./routes/subject.routes');
+const unit = require('./routes/unit.routes');
+const material = require('./routes/material.routes');
+const quiz = require('./routes/quiz.routes.js')
+
+
 // const {sendMessageToAdmin} = require("./utils/contactUs.utils.js")
 // const upload = require('./routes/upload.routes');
 // const download = require('./routes/download.routes');
 
 const { verifyJWT, verifyAdmin, verifyProfessor } = require('./middlewares/verify.js');
 
-// roles
-const ROLES = {
-    ADMIN: 'admin',
-    PROFESSOR: 'professor',
-    STUDENT: 'student'
-}
+
 //middleware
 
 app.use(cors());
@@ -69,6 +70,13 @@ app.use('/auth', auth);
 // app.use('/search', search);
 
 app.use('/api/v1/course/', course);
+app.use('/api/v1/subject/', subject);
+app.use('/api/v1/unit/', unit);
+app.use('/api/v1/material/', material);
+app.use('/api/v1/quiz/', quiz);
+
+
+
 app.get('/api', (req, res) => {
     res.json({ message: 'hello from rishon server' })
     console.log('hit')

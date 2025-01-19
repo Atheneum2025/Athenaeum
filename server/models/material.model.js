@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongooseAggregatePaginate = require("mongoose-aggregate-paginate-v2")
 const MaterialSchema = new mongoose.Schema(
   {
     materialname: {
@@ -33,6 +34,10 @@ const MaterialSchema = new mongoose.Schema(
       type: String,
       ref: "User",
     },
+    isPublished: {
+      type: Boolean,
+      default: "false",
+    },
     views: {
       type:Number,
       default: 0,
@@ -40,10 +45,16 @@ const MaterialSchema = new mongoose.Schema(
     materialURL: {
       type: String, // cloudinary url
     },
+    materialP_id: {
+      type: String, // public id from cloudinary
+    },
+    keywords: {
+      type: String,
+    }
   },
   {
     timestamps: true,
   }
 );
-
+MaterialSchema.plugin(mongooseAggregatePaginate);
 module.exports = mongoose.model("Material", MaterialSchema);
