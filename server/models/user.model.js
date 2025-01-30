@@ -28,11 +28,18 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      
+    },
     role: {
       type: String,
       enum: ["student", "professor", "admin"],
       default: "student",
       required: false,
+    },
+    avatar:{
+      type: String, //cloudinary url
     },
     viewHistory: [viewHistorySchema],
     permissions: {

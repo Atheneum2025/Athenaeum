@@ -10,21 +10,21 @@ const { upload } = require("../middlewares/multer.middleware.js")
 const { verifyJWT, verifyProfessor, verifyAdmin } = require("../middlewares/verify.js")
 // with coursename
 router.route('/')
-    .get( getAllCourses)
-    .post(verifyJWT, verifyAdmin, createCourse)
+    .get(getAllCourses)
+    .post(verifyJWT, createCourse)
 router.route('/:courseName')
     .get(getCourse)
-    .patch(verifyProfessor, updateCourse)
-    .delete(verifyProfessor, deleteCourse)
+    .patch(updateCourse)
+    .delete( deleteCourse)
 router.route('/:courseName/subject')
-    .post(createSubject)
+    .post(verifyJWT ,createSubject)
     .get(getAllSubjects)
 router.route('/:courseName/subject/:subjectName')
     .get(getSubject)
     .patch(updateSubject)
     .delete(deleteSubject)
 router.route('/:courseName/subject/:subjectName/unit')
-    .post(createUnit)
+    .post(verifyJWT ,createUnit)
     .get(getAllUnits)
 router.route('/:courseName/subject/:subjectName/unit/:unitName')
     .get(getUnit)
@@ -34,14 +34,18 @@ router.route('/:courseName/subject/:subjectName/unit/:unitName/material')
     .post(verifyJWT, upload.single('file'), uploadMaterial)
     .get(getAllMaterials);
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName')
-    .get(verifyJWT, displayMaterial)
+    .get( displayMaterial)
     .patch(updateMaterial)
     .delete(deleteMaterial);
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/save')
     .post(verifyJWT, toggleMaterialSave)
-    .get(verifyJWT, getAllSavedMaterials);
+    .get(getAllSavedMaterials);
 // router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/status')
 //     .put(verifyJWT, togglePublishMaterial);
+// coder coder dark
+// synthwave
+// cobalt2
+// shades of purple
 
 
 // with id

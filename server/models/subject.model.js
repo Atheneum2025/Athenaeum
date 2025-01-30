@@ -1,39 +1,39 @@
 const mongoose = require('mongoose');
 const Unit = require('../models/unit.model');
 const Material = require('../models/material.model');
-const SubjectSchema = new mongoose.Schema({
+const SubjectSchema = new mongoose.Schema(
+  {
     subjectname: {
-        type: String,
-        trim: true,
-        required: true
+      type: String,
+      trim: true,
+      required: true,
     },
     description: {
-        type: String,
-        required: true
-
+      type: String,
+      required: true,
     },
     year: {
-        type: String,
-        required: false
+      type: String,
+      required: false,
     },
     course: {
-        type: String,
-        ref: 'Course'
+      type: String,
+      ref: "Course",
     },
     units: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Unit'
-        }
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Unit",
+      },
     ],
     keywords: {
-        type: String,
-    }
-},
-{
-    timestamps:true
-}
-)
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 SubjectSchema.pre('findOneAndDelete', async function (next) {
     const subjectId = this.getQuery().subjectname;

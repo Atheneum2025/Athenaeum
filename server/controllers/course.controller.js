@@ -6,8 +6,12 @@ const asyncWrapper = require("../middlewares/async");
 
 // done
 const createCourse = asyncWrapper(async (req, res) => {
+  
   const course = await Course.create(req.body);
-  res.status(201).json({ course });
+  // res.status(201).json({ course });
+  res
+    .status(200)
+    .json({ message: "Course created successfully" });
 });
 
 // done

@@ -1,4 +1,5 @@
 const Quiz = require("../models/quiz.model.js");
+const Leaderboard = require("../models/leaderboard.model.js");
 const asyncWrapper = require("../middlewares/async.js");
 
 const createQuiz = asyncWrapper( async(req, res) => {
@@ -23,8 +24,26 @@ const getAQuiz = asyncWrapper( async(req, res) => {
 
 })
 
+const createLeaderboard = asyncWrapper( async(req, res) => {
+    const {quizId} = req.params;
+    const userId = req.user?._id;
+    const {score} = req.body;
+    // if(!userId){
+    //     return res.status(400).json({message: "unauthorised"})
+    // }
+    const leaderboard = await Leaderboard.create({student: userId, score: score, quiz: quizId})
+    res.status(200).json({ leaderboard });
+})
+
+const getLeaderboard = asyncWrapper( async(req, res) => {
+    const {quizId} = req.params;
+    const leaderboard = await Leaderboard.find({quiz: quizId});
+    res.status(200).json({leaderboard});
+})
 module.exports = {
     createQuiz,
     getAllQuizes,
-    getAQuiz
+    getAQuiz,
+    createLeaderboard,
+    getLeaderboard,
 }

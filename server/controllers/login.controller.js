@@ -32,7 +32,7 @@ const logInUser = async (req, res) => {
   // signUp will be through email and password only
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne( { $or: [{email: username} , {username: username}]});
     if (!user) {
       return res.status(404).json({ message: "User does not exist" });
     }
@@ -141,17 +141,18 @@ const refreshAccessToken = asyncWrapper(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncWrapper(async (req, res) => {
+  
   const { oldPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user?._id);
 
   const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
   if (!isPasswordCorrect) {
-    res.status(400).json({ message: "Invalid old password" });
+    return res.status(400).json({ message: "Invalid old password" });
   }
   user.password = newPassword;
   await user.save({ validateBeforeSave: false });
-  return res.status(200).json({ message: "Password changed" });
+  res.status(200).json({ message: "Password changed" });
 });
 
 module.exports = {

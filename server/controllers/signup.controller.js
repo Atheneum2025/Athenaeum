@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken')
 // This controller function takes user details and registers them to our website
 
 const signUpUser = async (req, res)=>{
-    const { username, password, role } = req.body;
+    const { username, password, role, email } = req.body;
 
     try {
-        let user = await User.findOne({ username });
+        let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
         }
@@ -15,7 +15,8 @@ const signUpUser = async (req, res)=>{
         user = new User({
             username,
             password,
-            role
+            role,
+            email
         });
 
         await user.save();

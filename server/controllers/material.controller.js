@@ -86,52 +86,34 @@ const displayMaterial = asyncWrapper(async (req, res) => {
 
   // add to viewHistory
   // get userId from req.user , after verifying
-  const userId = req.user._id;
+  // const userId = req.user?._id;
   // find user in database;
-  const user = await User.findById(userId);
-  console.log(user);
+  // const user = await User.findById(userId);
+  // console.log(user);
 
   // get cloudinary url from mongodb database - material collection
 
   const materialURL = material.materialURL;
 
-  // try {
-  //   const response = cloudinary.url(materialURL, {
-  //     resource_type: "video",
-  //     streaming_profile: "hd",
-  //   });
-
-  //   return res.json({ hlsUrl: response });
-  // } catch (error) {
-  //   return res
-  //     .status(500)
-  //     .json({ message: "Failed to fetch chunked video", error });
-  // }
-
-  // increment view counter
+  // increment view counter for user
   material.views = (material.views || 0) + 1;
   await material.save();
   // push viewed material to viewHistory in user model
-  user.viewHistory.push({ materialId: materialName });
+  // user.viewHistory.push({ materialId: materialName });
 
-  user.notifications.push({
-    message: "Please publish this",
-    messageBy: user,
-    material: material,
-  });
-  await user.save();
 
   res.status(200).json({ material });
 });
 
+// this function is for fetching all materials for searchbar results
 const giveAllmaterials = asyncWrapper(async (req, res) => {
-  const materials = await Material.find({});
+const materials = await Material.find({ isPublished : true });
   res.status(200).json({ materials });
   console.log("get all materials");
 });
 
 // done
-// see all materials
+// see all materials from an unit
 const getAllMaterials = asyncWrapper(async (req, res) => {
   const { courseName, subjectName, unitName } = req.params;
   const { page = 1, limit = 10, query, sortBy, SortType, userId } = req.query;
@@ -141,6 +123,7 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
     course: courseName,
     subject: subjectName,
     unit: unitName,
+    isPublished: true,
   });
 
   // if (query) {
@@ -177,7 +160,8 @@ const deleteMaterial = asyncWrapper(async (req, res) => {
     return res.status(400).json({ message: "material not found" });
   }
 
-  if (material?.owner.toString() !== usreId.toString()) {
+  const userId = req.user?._id;
+  if (material?.owner.toString() !== userId.toString()) {
     return res
       .status(400)
       .json({ message: "You are not authorised to delete this material" });
@@ -223,6 +207,7 @@ const updateMaterial = asyncWrapper(async (req, res) => {
   res.status(200).json({ material });
 });
 
+// this function is for toggling publish status for material
 const togglePublishMaterial = asyncWrapper(async (req, res) => {
   const { notificationId } = req.params;
   console.log(notificationId);
@@ -253,13 +238,11 @@ const togglePublishMaterial = asyncWrapper(async (req, res) => {
 
     await Notifications.findByIdAndDelete(notificationId);
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Material publish status toggled",
-        material: toggled,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Material publish status toggled",
+      material: toggled,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

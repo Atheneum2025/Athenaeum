@@ -23,7 +23,7 @@ const SavedMaterialSchema = new mongoose.Schema({
     },
     savedBy: {
         type: mongoose.Types.ObjectId,
-        required: true,
+        // required: true,
         ref: 'User'
     }
 },

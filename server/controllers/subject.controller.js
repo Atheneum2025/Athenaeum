@@ -5,8 +5,10 @@ const asyncWrapper = require("../middlewares/async.js");
 
 // done
 const createSubject = asyncWrapper(async (req, res) => {
+  const user = req.user;
+  console.log(user)
   // when a subject is created the corresponding course page has to be updated
-  const { subjectname, description } = req.body;
+  const { subjectname, description, keywords } = req.body;
   // finding the subject
   const { courseName } = req.params;
   console.log(courseName)
@@ -22,6 +24,7 @@ const createSubject = asyncWrapper(async (req, res) => {
     subjectname,
     description,
     course: courseName,
+    keywords: keywords,
   });
   await newSubject.save();
 

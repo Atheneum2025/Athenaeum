@@ -9,31 +9,31 @@ const QuizSchema = new mongoose.Schema({
         type: String
     },
     answerOne: {
-        type: String
+        type: Boolean
     },
     questionTwo: {
         type: String
     },
     answerTwo: {
-        type: String
+        type: Boolean
     },
     questionThree: {
         type: String
     },
     answerThree: {
-        type: String
+        type: Boolean
     },
     questionFour: {
         type: String
     },
     answerFour: {
-        type: String
+        type: Boolean
     },
     questionFive: {
         type: String
     },
     answerFive: {
-        type: String
+        type: Boolean
     },
     author: {
         type: mongoose.Schema.Types.ObjectId,

@@ -8,7 +8,7 @@ const asyncWrapper = require('../middlewares/async');
 const createUnit = asyncWrapper(async (req, res) => {
 
     // when a unit is created , the subject needs to be updated
-    const { unitname, description } = req.body;
+    const { unitname, description, keywords } = req.body;
     const {courseName, subjectName} = req.params;
     console.log(subjectName)
     const subject = await Subject.findOne({subjectname : subjectName});
@@ -17,7 +17,7 @@ const createUnit = asyncWrapper(async (req, res) => {
     }
     // const subjects = await Subjects.create(req.body)
     console.log(req.body)
-    const newUnit = new Unit({ unitname, description, course: courseName, subject: subjectName });
+    const newUnit = new Unit({ unitname, description, course: courseName, subject: subjectName, keywords: keywords });
     await newUnit.save();
 
     // Add the subject to the course

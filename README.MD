@@ -4,6 +4,10 @@ Athenaeum
 ## Table Of Contents
 1. [Introduction](#introduction)
 2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Technologies](#technologies)
+6. [API Documentation](#api-documentation)
 
 
 ## introduction
@@ -39,4 +43,27 @@ Athenaeum
 
 ## API Documentation
 
-### POST /api/v1/course
+### POST
+User:
+/auth/signup - username, password, role
+/auth/login
+/auth/logout
+/auth/refresh-token
+/auth/change-password
+
+Courses:
+/api/v1/course/
+/api/v1/course/:courseId/subject/
+/api/v1/course/:courseId/subject/:subjectId/Unit/
+/api/v1/course/:courseId/subject/:subjectId/Unit/:UnitId/
+/api/v1/course/:courseId/subject/:subjectId/Unit/:UnitId/Material/
+/api/v1/course/:courseId/subject/:subjectId/Unit/:UnitId/Material/:MatrialId/
+
+Save:
+/api/v1/course/:courseId/subject/:subjectId/Unit/:UnitId/Material/:MatrialId/Save
+
+### GET
+
+### DELETE
+
+### PATCH
