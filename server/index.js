@@ -18,6 +18,7 @@ const unit = require('./routes/unit.routes');
 const material = require('./routes/material.routes');
 const quiz = require('./routes/quiz.routes.js');
 const calendar = require('./routes/calendar.routes.js');
+const viewLater = require('./routes/viewLater.routes.js');
 
 // const {sendMessageToAdmin} = require("./utils/contactUs.utils.js")
 // const upload = require('./routes/upload.routes');
@@ -72,6 +73,7 @@ app.use('/auth', auth);
 
 
 
+
 // app.use('/search', search);
 
 app.use('/api/v1/course/', course);
@@ -79,7 +81,7 @@ app.use('/api/v1/subject/', subject);
 app.use('/api/v1/unit/', unit);
 app.use('/api/v1/material/', material);
 app.use('/api/v1/quiz/', quiz);
-app.use('/api/v1/calendar', calendar);
+app.use('/api/v1/viewLater/', viewLater);
 
 
 app.get('/api', (req, res) => {

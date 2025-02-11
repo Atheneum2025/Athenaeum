@@ -6,7 +6,7 @@ const {verifyJWT} = require("../middlewares/verify.js")
 
 router.route('/').get(getAllQuizes).post(verifyJWT, createQuiz);
 router.route("/:quizId").get(getAQuiz);
-router.route("/:quizId/leaderboard/").post( createLeaderboard).get(getLeaderboard);
+router.route("/:quizId/leaderboard/").post(verifyJWT, createLeaderboard).get(getLeaderboard);
 
 
 module.exports = router;

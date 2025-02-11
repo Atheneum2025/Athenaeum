@@ -6,12 +6,12 @@ const asyncWrapper = require("../middlewares/async.js");
 // done
 const createSubject = asyncWrapper(async (req, res) => {
   const user = req.user;
-  console.log(user)
+  console.log(user);
   // when a subject is created the corresponding course page has to be updated
   const { subjectname, description, keywords } = req.body;
   // finding the subject
   const { courseName } = req.params;
-  console.log(courseName)
+  console.log(courseName);
   const course = await Course.findOne({ coursename: courseName });
   // console.log(course)
   if (!course) {
@@ -53,15 +53,35 @@ const getSubject = asyncWrapper(async (req, res) => {
 
 // done
 const getAllSubjects = asyncWrapper(async (req, res) => {
+  const {
+    page = "1",
+    limit = "2",
+    sortBy = "subjectname",
+    SortType = "-1",
+  } = req.query;
+
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const sortOrder = SortType === "1" ? 1 : -1;
+
   const { courseName } = req.params;
   const course = await Course.find({ coursename: courseName });
 
   if (!course) {
     res.status(404).json({ msg: `no course with name : ${courseName}` });
-  } else {
-    const subjects = await Subject.find({ course: courseName });
-    res.status(200).json({ subjects: subjects });
   }
+
+  const subjects = await Subject.find({ course: courseName })
+    .sort({ [sortBy]: sortOrder }) // Sorting
+    .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
+    .limit(limitNumber);
+
+  const totalSubjects = await Subject.countDocuments();
+  res.status(200).json({
+    subjects: subjects,
+    totalPages: Math.ceil(totalSubjects / limitNumber),
+    currentPage: pageNumber,
+  });
 });
 
 const giveAllsubjects = asyncWrapper(async (req, res) => {

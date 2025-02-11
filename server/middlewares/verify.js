@@ -2,25 +2,29 @@ const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const asyncWrapper = require("../middlewares/async.js");
 
-const verifyJWT = asyncWrapper( async (req, res, next)=>{
-    const token = req.cookies?.accessToken || req.headers["Authorisation"]?.replace("Bearer ", "")
-// const token = req.cookies?.accessToken
-    console.log(req.cookies.accessToken)
-    if(!token){
-        res.status(401).json({message: "Unauthorised request"})
-    }
+const verifyJWT = asyncWrapper(async (req, res, next) => {
+  const token =
+    req.cookies?.authToken ||
+    req.headers["Authorisation"]?.replace("Bearer ", "");
+  // const token = req.cookies?.accessToken
+  // console.log(req.cookies.authToken);
+  if (!token) {
+    res.status(401).json({ message: "Unauthorised request" });
+  }
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+  try {
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
-    const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
-
-    if(!user){
-        res.send(401).json({ message: "invalid access token"})
-    }
-
+    const user = await User.findById(decodedToken?._id).select(
+      "-password -refreshToken"
+    );
     req.user = user;
     next();
-})
+  } catch {
+    return res.status(401).json({ message: "invalid access token" });
+  }
+
+});
 
 // const verifyJWT = asyncWrapper(async (req, res, next) => {
 //   const { authorization } = req.headers;

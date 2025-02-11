@@ -32,7 +32,7 @@ const CourseSchema = new mongoose.Schema(
 );
 
 CourseSchema.pre("findOneAndDelete", async function (next) {
-  const courseId = this.getQuery().coursename;
+  const courseId = this.getQuery()._id;
   console.log(courseId);
   await Subject.deleteMany({ course: courseId });
   await Unit.deleteMany({ course: courseId });
@@ -45,7 +45,6 @@ CourseSchema.pre("findOneAndUpdate", async function (next) {
   const updateData = this.getUpdate(); // Get the update data (e.g., coursename, description)
 
   const newCourseName = updateData.coursename;
-  const newDescription = updateData.description;
   console.log(courseId);
   await Subject.updateMany(
     { course: courseId },

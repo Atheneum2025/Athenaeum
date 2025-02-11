@@ -40,7 +40,7 @@ const logInUser = async (req, res) => {
     // checking if password is correct or not
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid user credentials" });
+      return res.status(404).json({ message: "Invalid user credentials" });
     }
 
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);

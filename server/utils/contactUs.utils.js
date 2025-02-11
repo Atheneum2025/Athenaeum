@@ -1,34 +1,34 @@
-const asyncWrapper = require("../middlewares/async.js")
 const nodemailer = require("nodemailer");
 
-const sendMessageToAdmin = asyncWrapper( async (req, res) => {
+// Create a transporter using SMTP
+const transporter = nodemailer.createTransport({
+  service: "gmail", // You can use other services like Outlook, Yahoo, etc.
+  auth: {
+    user: "rishonfernandes89@gmail.com", // Replace with your email
+    pass: "carmam1904", // Replace with your email app password
+  },
+});
 
-    const {name, email, message} = req.body;
+// Function to send an email
+const sendEmail = async (to, subject, text) => {
+  try {
+    const info = await transporter.sendMail({
+      from: '"Your Name" <your-email@gmail.com>', // Sender name & email
+      to, // Receiver email
+      subject, // Email subject
+      text, // Plain text message
+      html: `<p>${text}</p>`, // HTML version (optional)
+    });
 
-    if(!name || !email || !message){
-        return res.status(400).json({message: "All fields are required"});
-    }
-    const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com", // Gmail SMTP server
-        port: 587,             // Standard port
-        secure: false,
-        auth: {
-            user: process.env.GMAIL_ACCOUNT,
-            pass: process.env.GMAIL_PASSWORD
-        }
-    })
+    console.log("Email sent:", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
 
-    const mailOptions ={
-        from: email,
-        to: "rishonfernandes@gmail.com",
-        subject: `Contact Form Submission from ${name}`,
-        text: `You have a new message from ${name} (${email}):\n\n${message}`
-    }
-
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: "Message sent successfully!" });
-})
-
-module.exports = {
-    sendMessageToAdmin
-}
+// Call the function
+sendEmail(
+  "rishonfernandes89@gmail.com",
+  "Test Email",
+  "Hello! This is a test email from Node.js."
+);

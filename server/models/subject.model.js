@@ -48,7 +48,6 @@ SubjectSchema.pre('findOneAndUpdate', async function (next) {
     const updateData = this.getUpdate(); // Get the update data (e.g., coursename, description)
 
     const newSubjectName = updateData.subjectname;
-    const newDescription = updateData.description;
     console.log(subjectId);
     await Unit.updateMany({ subject: subjectId }, { $set: { subject: newSubjectName } })
     await Material.updateMany({subject: subjectId}, { $set: {subject: newSubjectName}});

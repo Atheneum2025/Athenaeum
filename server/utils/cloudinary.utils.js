@@ -60,6 +60,7 @@ const uploadOnCloudinary = async (localFilePath, size) => {
     } else {
       response = await cloudinary.uploader.upload(localFilePath, {
         resource_type: "raw",
+        access_mode: "public",
       });
     }
     if (!response) {

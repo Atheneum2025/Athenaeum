@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Notification = require("./notifications.model.js");
 
 const QuizSchema = new mongoose.Schema({
     quizName: {
@@ -40,5 +41,12 @@ const QuizSchema = new mongoose.Schema({
         ref: "User",
     }
 })
+
+// QuizSchema.post('save', async function(next){
+//     const notificationCreated = await new Notification({
+//         message: "New Quiz uploaded",
+//         messageBy: ""
+//     })
+// })
 
 module.exports = mongoose.model("Quiz", QuizSchema);

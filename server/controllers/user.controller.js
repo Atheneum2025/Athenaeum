@@ -1,13 +1,24 @@
 const User = require("../models/user.model");
 const Notifications = require("../models/notifications.model");
+const Materials = require("../models/material.model.js")
 const asyncWrapper = require("../middlewares/async");
 const mongoose = require("mongoose");
 
 //All these routes are only for the admin
 const getAllUsers = asyncWrapper(async (req, res) => {
   const users = await User.find({});
-  res.status(200).json({ Users: users });
+  res.status(200).json({ users: users });
 });
+
+const getAllStudents = asyncWrapper(async (req, res) => {
+  const students = await User.find({role: "student"});
+  res.status(200).json({students});
+})
+
+const getAllProfessors = asyncWrapper(async (req, res) => {
+  const professors = await User.find({ role: "professor" });
+  res.status(200).json({professors});
+})
 
 //this createUser route is not required
 const createUser = asyncWrapper(async (req, res) => {
@@ -15,6 +26,31 @@ const createUser = asyncWrapper(async (req, res) => {
   res.status(201).json({ user });
 });
 
+// this function is for uploading avatar
+const uploadAvatar = asyncWrapper(async (req, res) => {
+  const userId = req.user?._id;
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(401).json({ message: "no user found" });
+  }
+  const avatarLocalPath = req.file?.path;
+  if (!avatarLocalPath) {
+    return res.status(400).json({ message: "Avatar file local path required" });
+  }
+  const fileSize = req.file?.size;
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath, fileSize);
+
+  if(!avatar){
+    return res.status(500).json({message: "avatar not found"});
+  }
+  const changed = await User.findByIdAndUpdate(
+    userId,
+    { $set: { avatar: avatar.url } },
+    { new: true }
+  );
+
+});
 const getUser = asyncWrapper(async (req, res) => {
   const { id: UserID } = req.params;
   const user = await User.findOne({ _id: UserID });
@@ -24,6 +60,18 @@ const getUser = asyncWrapper(async (req, res) => {
   }
   res.status(200).json({ user });
 });
+
+const getUserMaterial = asyncWrapper( async (req, res) => {
+  const {id : userId} = req.params;
+  console.log(userId)
+  const user = await User.findById(userId);
+  if(!user){
+    return res.status(401).json({message:"user not found"})
+  }
+
+  const materials = await Materials.find({owner: userId});
+  res.status(200).json({materials});
+})
 
 const updateUser = asyncWrapper(async (req, res) => {
   const { id: UserID } = req.params;
@@ -52,38 +100,38 @@ const deleteUser = asyncWrapper(async (req, res) => {
 const getUserViewHistory = asyncWrapper(async (req, res) => {
   const userId = req.user?._id;
   console.log(userId);
-  // const history = await User.aggregate([
-  //   {
-  //     $match: {
-  //       _id: new mongoose.Types.ObjectId(req.user.id),
-  //     },
-  //   },
-  //   {
-  //     $unwind: "$viewHistory",
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "materials",
-  //       localField: "viewHistory.materialId",
-  //       foreignField: "_id",
-  //       as: "History",
-  //     },
-  //   },
-  //   {
-  //     $unwind: "$History",
-  //   },
-  //   {
-  //     $project: {
-  //       user: "$username",
-  //       MaterialName: "$History.materialname",
-  //       course: "$History.course",
-  //       subject: "$History.subject",
-  //       unit: "$History.unit",
-  //     },
-  //   },
-  // ]);
+  const history = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $unwind: "$viewHistory",
+    },
+    {
+      $lookup: {
+        from: "materials",
+        localField: "viewHistory.materialId",
+        foreignField: "_id",
+        as: "History",
+      },
+    },
+    {
+      $unwind: "$History",
+    },
+    {
+      $project: {
+        user: "$username",
+        MaterialName: "$History.materialname",
+        course: "$History.course",
+        subject: "$History.subject",
+        unit: "$History.unit",
+      },
+    },
+  ]);
 
-  return res.status(200).json({ history: userId });
+  return res.status(200).json({ history: history });
 });
 
 const deleteAllUserViewHistory = asyncWrapper(async (req, res) => {
@@ -111,8 +159,12 @@ const deleteNotification = asyncWrapper(async (req, res) => {});
 
 module.exports = {
   getAllUsers,
+  getAllStudents,
+  getAllProfessors,
   createUser,
+  uploadAvatar,
   getUser,
+  getUserMaterial,
   updateUser,
   deleteUser,
   getUserViewHistory,

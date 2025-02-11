@@ -51,6 +51,7 @@ const uploadMaterial = asyncWrapper(async (req, res) => {
     subject: subjectName,
     unit: unitName,
     owner: userId,
+    fileType: material.resource_type,
     materialURL: material.url,
     materialP_id: material.public_id,
   });
@@ -86,10 +87,10 @@ const displayMaterial = asyncWrapper(async (req, res) => {
 
   // add to viewHistory
   // get userId from req.user , after verifying
-  // const userId = req.user?._id;
+  const userId = req.user?._id;
   // find user in database;
-  // const user = await User.findById(userId);
-  // console.log(user);
+  const user = await User.findById(userId);
+  console.log(user);
 
   // get cloudinary url from mongodb database - material collection
 
@@ -99,15 +100,21 @@ const displayMaterial = asyncWrapper(async (req, res) => {
   material.views = (material.views || 0) + 1;
   await material.save();
   // push viewed material to viewHistory in user model
-  // user.viewHistory.push({ materialId: materialName });
+  user.viewHistory.push({ materialId: materialName });
+  await user.save();
 
+  // const agg = await Material.aggregate([
+  //   {
+  //     $match:
+  //   }
+  // ])
 
   res.status(200).json({ material });
 });
 
 // this function is for fetching all materials for searchbar results
 const giveAllmaterials = asyncWrapper(async (req, res) => {
-const materials = await Material.find({ isPublished : true });
+  const materials = await Material.find({ isPublished: true });
   res.status(200).json({ materials });
   console.log("get all materials");
 });
@@ -116,7 +123,17 @@ const materials = await Material.find({ isPublished : true });
 // see all materials from an unit
 const getAllMaterials = asyncWrapper(async (req, res) => {
   const { courseName, subjectName, unitName } = req.params;
-  const { page = 1, limit = 10, query, sortBy, SortType, userId } = req.query;
+  const {
+    page = "1",
+    limit = "2",
+    sortBy = "coursename",
+    SortType = "-1",
+  } = req.query;
+
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+  const sortOrder = SortType === "1" ? 1 : -1;
+
   const pipeline = [];
 
   const materials = await Material.find({
@@ -124,7 +141,13 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
     subject: subjectName,
     unit: unitName,
     isPublished: true,
-  });
+  })
+    .sort({ [sortBy]: sortOrder }) // Sorting
+    .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
+    .limit(limitNumber);
+  
+    const totalMaterials = await Material.countDocuments();
+  
 
   // if (query) {
   //   pipeline.push({
@@ -147,8 +170,22 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
   // ]);
 
   // const data = await Material.aggregate([{}]);
-  res.status(200).json({ materials: materials });
+  res
+    .status(200)
+    .json({
+      materials,
+      totalPages: Math.ceil(totalMaterials / limitNumber),
+      currentPage: pageNumber,
+    });
 });
+
+const getMaterialsByUser = asyncWrapper( async (req, res) => {
+  const userId = req.user?._id
+console.log(userId)
+  const materials = await Material.find({owner:userId})
+
+  res.status(200).json({materials});
+})
 
 // test
 // delete a material
@@ -253,6 +290,7 @@ module.exports = {
   uploadMaterial,
   displayMaterial,
   getAllMaterials,
+  getMaterialsByUser,
   deleteMaterial,
   updateMaterial,
   giveAllmaterials,
