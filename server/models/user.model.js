@@ -46,9 +46,19 @@ const UserSchema = new mongoose.Schema(
       type: [String],
       default: ["upload", "download", "watch", "read"],
     },
+    isActive:{
+      type:Boolean,
+      default:true
+    },
     refreshToken: {
       type: String,
     },
+    phoneNo: {
+      type: Number,
+    },
+    viewCount: {
+      type:Number
+    }
   },
   {
     timestamps: true,

@@ -6,12 +6,15 @@ const NotificationsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  reply: {
+    type: String,
+  },
   messageBy: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "User",
   },
   material: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "Material",
   }
 })

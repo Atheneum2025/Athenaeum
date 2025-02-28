@@ -3,10 +3,12 @@ const User = require("../models/user.model.js");
 const Material = require("../models/material.model.js");
 const Unit = require("../models/unit.model.js");
 const Notifications = require("../models/notifications.model.js");
+const ViewLater = require("../models/viewLater.model.js");
 const asyncWrapper = require("../middlewares/async.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.utils.js");
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
+const mongoose = require('mongoose')
 
 // done
 // upload
@@ -38,31 +40,52 @@ const uploadMaterial = asyncWrapper(async (req, res) => {
   console.log(fileSize);
 
   console.log(materialLocalPath);
-  const material = await uploadOnCloudinary(materialLocalPath, fileSize);
+  // const material = await uploadOnCloudinary(materialLocalPath, fileSize);
 
-  if (!material) {
-    return res.status(400).json({ message: "Material file required" });
-  }
+  // if (!material) {
+  //   return res.status(400).json({ message: "Material file required" });
+  // }
 
+  const owner = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    {
+      $project: {
+        password: 0,
+        refreshToken: 0,
+      },
+    },
+  ]);
   const newMaterial = new Material({
     materialname: materialName,
     description,
     course: courseName,
     subject: subjectName,
     unit: unitName,
-    owner: userId,
-    fileType: material.resource_type,
-    materialURL: material.url,
-    materialP_id: material.public_id,
+    owner: owner[0].username,
+    // fileType: material.resource_type,
+    // materialURL: material.url,
+    // materialP_id: material.public_id,
   });
   await newMaterial.save();
   console.log(newMaterial);
 
   // make a entry in users notification
   const notified = new Notifications({
-    message: "Please publish this material",
+    message: "Please Publish This Material",
     messageBy: userId,
-    material: newMaterial._id,
+    material: newMaterial.materialname,
   });
   await notified.save();
 
@@ -90,11 +113,11 @@ const displayMaterial = asyncWrapper(async (req, res) => {
   const userId = req.user?._id;
   // find user in database;
   const user = await User.findById(userId);
-  console.log(user);
+  // console.log(user);
 
   // get cloudinary url from mongodb database - material collection
 
-  const materialURL = material.materialURL;
+  const materialname = material.materialname;
 
   // increment view counter for user
   material.views = (material.views || 0) + 1;
@@ -103,6 +126,12 @@ const displayMaterial = asyncWrapper(async (req, res) => {
   user.viewHistory.push({ materialId: materialName });
   await user.save();
 
+  const found = await ViewLater.findOne({materialname: materialname, user: userId});
+  if(found){
+    console.log(found);
+    user.viewCount = (user.viewCount || 0) + 1;
+    await user.save();
+  }
   // const agg = await Material.aggregate([
   //   {
   //     $match:
@@ -145,9 +174,8 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
     .sort({ [sortBy]: sortOrder }) // Sorting
     .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
     .limit(limitNumber);
-  
-    const totalMaterials = await Material.countDocuments();
-  
+
+  const totalMaterials = await Material.countDocuments();
 
   // if (query) {
   //   pipeline.push({
@@ -170,22 +198,20 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
   // ]);
 
   // const data = await Material.aggregate([{}]);
-  res
-    .status(200)
-    .json({
-      materials,
-      totalPages: Math.ceil(totalMaterials / limitNumber),
-      currentPage: pageNumber,
-    });
+  res.status(200).json({
+    materials,
+    totalPages: Math.ceil(totalMaterials / limitNumber),
+    currentPage: pageNumber,
+  });
 });
 
-const getMaterialsByUser = asyncWrapper( async (req, res) => {
-  const userId = req.user?._id
-console.log(userId)
-  const materials = await Material.find({owner:userId})
+const getMaterialsByUser = asyncWrapper(async (req, res) => {
+  const userId = req.user?._id;
+  console.log(userId);
+  const materials = await Material.find({ owner: userId });
 
-  res.status(200).json({materials});
-})
+  res.status(200).json({ materials });
+});
 
 // test
 // delete a material
@@ -253,16 +279,16 @@ const togglePublishMaterial = asyncWrapper(async (req, res) => {
     if (!notification) {
       return res.status(404).json({ message: "Notification not found" });
     }
-    const materialId = notification.material;
+    const materialName = notification.material;
 
-    const material = await Material.findById(materialId);
-    console.log(materialId);
+    const material = await Material.findOne({materialname: materialName});
+    // console.log(materialId);
     if (!material) {
       return res.status(404).json({ message: "Material not found" });
     }
-
+    console.log(material._id)
     const toggled = await Material.findByIdAndUpdate(
-      materialId,
+      material._id,
       { $set: { isPublished: !material.isPublished } },
       { new: true }
     );
@@ -274,6 +300,13 @@ const togglePublishMaterial = asyncWrapper(async (req, res) => {
     }
 
     await Notifications.findByIdAndDelete(notificationId);
+
+    const notifyStudents = new Notifications({
+      message: "New Material Uploaded",
+      material: material.materialname,
+    });
+
+    await notifyStudents.save()
 
     res.status(200).json({
       success: true,

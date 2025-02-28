@@ -4,12 +4,11 @@ const CalendarSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    event: {
+    title: {
         type: String,
     },
     date: {
         type: Date,
-        default: Date.now(),
     }
 })
 

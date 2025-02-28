@@ -19,6 +19,7 @@ const material = require('./routes/material.routes');
 const quiz = require('./routes/quiz.routes.js');
 const calendar = require('./routes/calendar.routes.js');
 const viewLater = require('./routes/viewLater.routes.js');
+const contactUs = require('./routes/contactUs.routes.js');
 
 // const {sendMessageToAdmin} = require("./utils/contactUs.utils.js")
 // const upload = require('./routes/upload.routes');
@@ -59,29 +60,16 @@ app.use("/uploads", express.static("uploads"))
 // app.use(upload.none());
 //routes
 
-app.use('/api/v1/users', users);
 //authenticate user
-app.use('/auth', auth);
-
-//uploads
-// app.use('/upload', upload, verifyProfessor);
-// app.use('/download', download);
-
-// app.post("/contact", verifyJWT, sendMessageToAdmin);
-
-
-
-
-
-
-// app.use('/search', search);
-
+app.use('/api/v1/auth', auth);
+app.use('/api/v1/users', users);
 app.use('/api/v1/course/', course);
 app.use('/api/v1/subject/', subject);
 app.use('/api/v1/unit/', unit);
 app.use('/api/v1/material/', material);
 app.use('/api/v1/quiz/', quiz);
 app.use('/api/v1/viewLater/', viewLater);
+app.use('/api/v1/contactUs/', contactUs);
 
 
 app.get('/api', (req, res) => {

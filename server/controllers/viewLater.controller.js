@@ -1,5 +1,7 @@
 const ViewLater = require("../models/viewLater.model.js");
 const User = require("../models/user.model.js");
+const Material = require("../models/material.model.js");
+const mongoose = require("mongoose");
 const asyncWrapper = require("../middlewares/async.js");
 
 const createViewLater = asyncWrapper(async (req, res) => {
@@ -11,13 +13,18 @@ const createViewLater = asyncWrapper(async (req, res) => {
   }
   const existing = await ViewLater.findOne({
     user: userId,
-    materialName: materialName,
+    materialId: materialName,
   });
+  const material = await Material.findOne({
+    _id:materialName
+  })
+
   if (existing) {
     return res.status(400).json({ message: "Material already saved." });
   }
   const newViewLater = new ViewLater({
-    materialName: materialName,
+    materialId: materialName,
+    materialname: material.materialname,
     user: userId,
   });
 
@@ -38,14 +45,15 @@ const getAllViewLaters = asyncWrapper(async (req, res) => {
   const allMaterials = await ViewLater.find({
     user: userId,
   });
+
+
   res.status(200).json({ allMaterials });
 });
 
 const deleteViewLater = asyncWrapper(async (req, res) => {
   const { materialId } = req.params;
   const userId = req.user._id;
-  console.log(materialId)
-  await ViewLater.findOneAndDelete({ user: userId, materialName: materialId });
+  await ViewLater.findOneAndDelete({ user: userId, materialId: materialId });
   res.status(200).json({ message: "Removed successfully!" });
 });
 

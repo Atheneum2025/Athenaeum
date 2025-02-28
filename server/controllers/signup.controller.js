@@ -1,22 +1,21 @@
-const User = require('../models/user.model');
-const jwt = require('jsonwebtoken')
+const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 // This controller function takes user details and registers them to our website
 
-const signUpUser = async (req, res)=>{
-    const { username, password, role, email } = req.body;
+const signUpUser = async (req, res) => {
+    const { username, password, email } = req.body;
 
     try {
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ msg: 'User already exists' });
+            return res.status(400).json({ msg: "User already exists" });
         }
 
         user = new User({
             username,
             password,
-            role,
-            email
+            email,
         });
 
         await user.save();
@@ -27,13 +26,10 @@ const signUpUser = async (req, res)=>{
         res.json({ user });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(500).send("Server error");
     }
-}
-
-
-
+};
 
 module.exports = {
-    signUpUser
-}
+    signUpUser,
+};

@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 const ViewLaterSchema = mongoose.Schema({
-    materialName: {
+    materialId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Material",
+    },
+    materialname: {
+        type: String
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,

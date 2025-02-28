@@ -11,7 +11,7 @@ const { upload } = require("../middlewares/multer.middleware.js")
 const { verifyJWT, verifyProfessor, verifyAdmin } = require("../middlewares/verify.js")
 // with coursename
 router.route('/')
-    .get(verifyJWT, getAllCourses)
+    .get(getAllCourses)
     .post(verifyJWT, createCourse)
 router.route('/c/')
     .get(giveAllCourses)
