@@ -6,21 +6,23 @@ const asyncWrapper = require("../middlewares/async");
 
 // done
 const createCourse = asyncWrapper(async (req, res) => {
-  const course = await Course.create(req.body);
-  // res.status(201).json({ course });
-  res.status(200).json({ message: "Course created successfully" });
+    const course = await Course.create(req.body);
+    // res.status(201).json({ course });
+    res.status(200).json({ message: "Course created successfully" });
 });
 
 // done
 const getCourse = asyncWrapper(async (req, res) => {
-  const { courseName } = req.params;
-  console.log(courseName);
-  const courses = await Course.findOne({ coursename: courseName });
+    const { courseName } = req.params;
+    console.log(courseName);
+    const courses = await Course.findOne({ coursename: courseName });
 
-  if (!courses) {
-    return res.status(404).json({ msg: `no course with name : ${courseName}` });
-  }
-  res.status(200).json({ courses });
+    if (!courses) {
+        return res
+            .status(404)
+            .json({ msg: `no course with name : ${courseName}` });
+    }
+    res.status(200).json({ courses });
 });
 
 // const getCourse = asyncWrapper(async (req, res) => {
@@ -38,57 +40,56 @@ const getCourse = asyncWrapper(async (req, res) => {
 
 // done
 const getAllCourses = asyncWrapper(async (req, res) => {
-  const {
-    page = "1",
-    limit = "2",
-    sortBy = "coursename",
-    SortType = "-1",
-  } = req.query;
+    const {
+        page = "1",
+        limit = "2",
+        sortBy = "coursename",
+        SortType = "-1",
+    } = req.query;
 
-   const pageNumber = parseInt(page, 10);
-   const limitNumber = parseInt(limit, 10);
-   const sortOrder = SortType === "1" ? 1 : -1;
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const sortOrder = SortType === "1" ? 1 : -1;
 
-   
-  const courses = await Course.find({})
-    .sort({ [sortBy]: sortOrder }) // Sorting
-    .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
-    .limit(limitNumber);
+    const courses = await Course.find({})
+        .sort({ [sortBy]: sortOrder }) // Sorting
+        .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
+        .limit(limitNumber);
 
-  const totalCourses = await Course.countDocuments();
-  res
-    .status(200)
-    .json({
-      courses,
-      totalPages: Math.ceil(totalCourses / limitNumber),
-      currentPage: pageNumber,
+    const totalCourses = await Course.countDocuments();
+    res.status(200).json({
+        courses,
+        totalPages: Math.ceil(totalCourses / limitNumber),
+        currentPage: pageNumber,
     });
-  console.log("get all courses");
+    console.log("get all courses");
 });
 
 const giveAllCourses = asyncWrapper(async (req, res) => {
-  const courses = await Course.find({});
-  res.status(200).json({ courses });
-  console.log("get all courses");
+    const courses = await Course.find({});
+    res.status(200).json({ courses });
+    console.log("get all courses");
 });
 // not complete yet
 const deleteCourse = asyncWrapper(async (req, res) => {
-  // when we delete a course , all the contents of the course should be deleted
-  // delete subject, unit and material
+    // when we delete a course , all the contents of the course should be deleted
+    // delete subject, unit and material
 
-  // solution
-  // we will add a trigger which will delete the subject and unit after the deletion of the course
-  // const {role} = req.user.role
-  // console.log(role)
-  const { courseName } = req.params;
-  const course = await Course.findOneAndDelete({ coursename: courseName });
-  if (!course) {
-    return res.status(404).json({ msg: `no course with name : ${courseName}` });
-  }
+    // solution
+    // we will add a trigger which will delete the subject and unit after the deletion of the course
+    // const {role} = req.user.role
+    // console.log(role)
+    const { courseName } = req.params;
+    const course = await Course.findOneAndDelete({ coursename: courseName });
+    if (!course) {
+        return res
+            .status(404)
+            .json({ msg: `no course with name : ${courseName}` });
+    }
 
-  //for deleting subjects
+    //for deleting subjects
 
-  res.status(200).json({ course });
+    res.status(200).json({ course });
 });
 
 // const deleteCourse = asyncWrapper(async (req, res) => {
@@ -111,28 +112,35 @@ const deleteCourse = asyncWrapper(async (req, res) => {
 // })
 
 const updateCourse = asyncWrapper(async (req, res) => {
-  // when we update a course , all the contents of the course should be updated
-  // update subject, unit and material
-  const { courseName } = req.params;
-  // console.log(req.body)
-  // console.log(courseName)
-  const course = await Course.findOneAndUpdate(
-    { coursename: courseName },
-    req.body
-  );
-  // console.log(course)
-  if (!course) {
-    return res.status(404).json({ msg: `no course with name : ${courseName}` });
-  }
+    // when we update a course , all the contents of the course should be updated
+    // update subject, unit and material
+    const { courseName } = req.params;
+    // console.log(req.body)
+    // console.log(courseName)
+    const course = await Course.findOneAndUpdate(
+        { coursename: courseName },
+        req.body
+    );
+    // console.log(course)
+    if (!course) {
+        return res
+            .status(404)
+            .json({ msg: `no course with name : ${courseName}` });
+    }
 
-  res.status(200).json({ course });
+    res.status(200).json({ course });
+});
+
+const changeRatings = asyncWrapper(async (req, res) => {
+    const { courseId } = req.params;
 });
 
 module.exports = {
-  createCourse,
-  getCourse,
-  getAllCourses,
-  giveAllCourses,
-  deleteCourse,
-  updateCourse,
+    createCourse,
+    getCourse,
+    getAllCourses,
+    giveAllCourses,
+    deleteCourse,
+    updateCourse,
+    changeRatings,
 };

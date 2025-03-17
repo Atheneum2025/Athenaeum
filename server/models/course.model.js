@@ -24,6 +24,9 @@ const CourseSchema = new mongoose.Schema(
     },
     acronym:{
       type: String
+    },
+    ratings: {
+      type: Number
     }
   },
   {

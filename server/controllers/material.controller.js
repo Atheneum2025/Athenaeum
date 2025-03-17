@@ -143,7 +143,9 @@ const displayMaterial = asyncWrapper(async (req, res) => {
 
 // this function is for fetching all materials for searchbar results
 const giveAllmaterials = asyncWrapper(async (req, res) => {
-  const materials = await Material.find({ isPublished: true });
+  const {limit = "2"} = req.query;
+  const limitNumber = parseInt(limit, 10);
+  const materials = await Material.find({ isPublished: true }).limit(limitNumber);;
   res.status(200).json({ materials });
   console.log("get all materials");
 });

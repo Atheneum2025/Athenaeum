@@ -3,7 +3,7 @@ const Leaderboard = require("../models/leaderboard.model.js");
 const asyncWrapper = require("../middlewares/async.js");
 
 const createQuiz = asyncWrapper( async(req, res) => {
-    const user = req.user?._id;
+    const user = req.user?.username;
     const quiz = await Quiz.create({...req.body, author: user});
     res.status(200).json({quiz});
 })
@@ -26,12 +26,13 @@ const getAQuiz = asyncWrapper( async(req, res) => {
 
 const createLeaderboard = asyncWrapper( async(req, res) => {
     const {quizId} = req.params;
-    const userId = req.user?._id;
-    const {score} = req.body;
+    const user = req.user;
+    const {currentScore : score} = req.body;
+    console.log(score)
     // if(!userId){
     //     return res.status(400).json({message: "unauthorised"})
     // }
-    const leaderboard = await Leaderboard.create({student: userId, score: score, quiz: quizId})
+    const leaderboard = await Leaderboard.create({student: user?._id, studentname: user?.username, score: score, quiz: quizId})
     res.status(200).json({ leaderboard });
 })
 

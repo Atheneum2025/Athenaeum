@@ -1,11 +1,18 @@
 const mongoose = require('mongoose')
 const Notifications = require('../models/notifications.model.js');
 const Users = require('../models/user.model.js');
+const ContactUs = require('../models/contactus.model.js')
 const asyncWrapper = require('../middlewares/async.js');
+
+const getAllMessages = asyncWrapper(async (req, res) => {
+    // const userId = req.user?._id;
+    const messages = await ContactUs.find({})
+    res.status(200).json({messages});
+})
 
 const sendMessage = asyncWrapper(async( req, res) => {
     const userId = req.user?._id;
-    const {message , replyMessage} = req.body;
+    const {message} = req.body;
     const user = await Users.aggregate([
         {
             $match: {
@@ -28,10 +35,10 @@ const sendMessage = asyncWrapper(async( req, res) => {
         }
     ])
 
-    const messaged = new Notifications({
+    const messaged = new ContactUs({
         message: message,
-        messageBy: user[0].username,
-      });
+        sender: user[0].username,
+    });
     await messaged.save();
 
     if(!messaged){
@@ -42,15 +49,16 @@ const sendMessage = asyncWrapper(async( req, res) => {
 })
 
 const replyMessage = asyncWrapper(async (req, res) => {
+    const userId = req.user?._id;
     const {replyMessage} = req.body;
     const {notificationId} = req.params;
 
-    const notification = await Notifications.findByIdAndUpdate(
+    const notification = await ContactUs.findByIdAndUpdate(
         notificationId,
-        {$set: {reply: replyMessage}},
-        {new: true},
-        {runValidators:true}
-    )
+        { $set: {sender: userId, message: replyMessage } },
+        { new: true },
+        { runValidators: true }
+    );
     if(!notification){
         return res.status(404).json({message: "not found"});
     }
@@ -59,6 +67,7 @@ const replyMessage = asyncWrapper(async (req, res) => {
 })
 
 module.exports = {
+    getAllMessages,
     sendMessage,
     replyMessage
 }

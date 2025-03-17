@@ -6,6 +6,10 @@ const QuizSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    selectedSubject: {
+        type: String,
+        required: true,
+    },
     questionOne: {
         type: String
     },
@@ -37,8 +41,8 @@ const QuizSchema = new mongoose.Schema({
         type: Boolean
     },
     author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
+        required: true,
     }
 })
 

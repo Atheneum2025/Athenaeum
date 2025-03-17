@@ -6,6 +6,9 @@ const LeaderboardSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
+    studentname: {
+        type: String,
+    },
     score: {
         type: Number,
     },

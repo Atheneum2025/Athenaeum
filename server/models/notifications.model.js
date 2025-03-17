@@ -6,9 +6,6 @@ const NotificationsSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  reply: {
-    type: String,
-  },
   messageBy: {
     type: String,
     ref: "User",
