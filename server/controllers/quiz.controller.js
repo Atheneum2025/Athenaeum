@@ -38,6 +38,7 @@ const createLeaderboard = asyncWrapper( async(req, res) => {
 
 const getLeaderboard = asyncWrapper( async(req, res) => {
     const {quizId} = req.params;
+    
     const leaderboard = await Leaderboard.find({quiz: quizId});
     res.status(200).json({leaderboard});
 })

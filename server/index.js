@@ -71,7 +71,6 @@ app.use('/api/v1/quiz/', quiz);
 app.use('/api/v1/viewLater/', viewLater);
 app.use('/api/v1/contactUs/', contactUs);
 
-
 app.get('/api', (req, res) => {
     res.json({ message: 'hello from rishon server' })
     console.log('hit')
