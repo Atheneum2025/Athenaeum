@@ -6,20 +6,16 @@ const asyncWrapper = require("../middlewares/async.js");
 // done
 const createSubject = asyncWrapper(async (req, res) => {
   const user = req.user;
-  console.log(user);
   // when a subject is created the corresponding course page has to be updated
   const { subjectname, description, keywords } = req.body;
   // finding the subject
   const { courseName } = req.params;
-  console.log(courseName);
   const course = await Course.findOne({ coursename: courseName });
-  // console.log(course)
   if (!course) {
     return res.status(404).json({ error: "Course not found" });
   }
 
   // const subjects = await Subjects.create(req.body)
-  console.log(req.body);
   const newSubject = new Subject({
     subjectname,
     description,
@@ -29,7 +25,6 @@ const createSubject = asyncWrapper(async (req, res) => {
   await newSubject.save();
 
   // Add the subject to the course
-  console.log(course);
   // course.subjects.push(newSubject._id);
   // await course.save();
   res.status(201).json({ newSubject });
@@ -40,8 +35,6 @@ const createSubject = asyncWrapper(async (req, res) => {
 const getSubject = asyncWrapper(async (req, res) => {
   const { courseName, subjectName } = req.params;
   const subject = await Subject.findOne({ subjectname: subjectName });
-  console.log(subject.course);
-  console.log(courseName);
   if (subject.course !== courseName) {
     return res
       .status(404)
@@ -87,7 +80,6 @@ const getAllSubjects = asyncWrapper(async (req, res) => {
 const giveAllsubjects = asyncWrapper(async (req, res) => {
   const subjects = await Subject.find({});
   res.status(200).json({ subjects });
-  console.log("get all subjects");
 });
 
 const deleteSubject = asyncWrapper(async (req, res) => {
@@ -100,7 +92,6 @@ const deleteSubject = asyncWrapper(async (req, res) => {
   // and update the course collection which has this subject in its array of subject
   const { courseName, subjectName } = req.params;
 
-  console.log(courseName);
   const course = await Course.find({ coursename: courseName });
 
   if (!course) {
@@ -122,7 +113,13 @@ const updateSubject = asyncWrapper(async (req, res) => {
 
   const subject = await Subject.findOneAndUpdate(
     { subjectname: subjectName },
-    req.body,
+    {
+      $set: {
+        subjectname: req.body.editSubjectname,
+        description: req.body.editSubjectdescription,
+        keywords: req.body.editSubjectkeywords,
+      }
+    },
     {
       new: true,
       runValidators: true,
@@ -130,7 +127,7 @@ const updateSubject = asyncWrapper(async (req, res) => {
   );
 
   if (!subject) {
-    return res.status(404).json({ msg: `no subject with id : ${subjectId}` });
+    return res.status(404).json({ msg: `no subject with id : ${subjectname}` });
   }
   res.status(200).json({ subject });
 });

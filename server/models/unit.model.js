@@ -38,7 +38,7 @@ UnitSchema.pre('findOneAndUpdate', async function (next) {
     const unitId = this.getQuery().unitname;
     const updateData = this.getUpdate();
 
-    const newUnitName = updateData.unitname;
+    const newUnitName = updateData.$set.unitname;
     console.log(unitId);
     await Material.updateMany({unit: unitId},{ $set: {unit: newUnitName}})
 })

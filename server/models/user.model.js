@@ -57,7 +57,8 @@ const UserSchema = new mongoose.Schema(
       type: Number,
     },
     viewCount: {
-      type:Number
+      type:Number,
+      default:0,
     }
   },
   {

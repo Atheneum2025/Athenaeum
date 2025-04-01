@@ -64,7 +64,6 @@ const getUser = asyncWrapper(async (req, res) => {
 
 const getUserMaterial = asyncWrapper(async (req, res) => {
     const { id: userId } = req.params;
-    console.log(userId);
     const user = await User.findById(userId);
     if (!user) {
         return res.status(401).json({ message: "user not found" });
@@ -109,6 +108,7 @@ const updateRole = asyncWrapper(async (req, res) => {
 const deleteUser = asyncWrapper(async (req, res) => {
     const { id: UserID } = req.params;
     const user = await User.findOneAndDelete({ _id: UserID });
+    console.log('user deleted');
     if (!user) {
         return res.status(404).json({ mag: `no User with id : ${UserID}` });
     }
@@ -191,6 +191,22 @@ const deleteAllUserViewHistory = asyncWrapper(async (req, res) => {
 
 const getAllNotifications = asyncWrapper(async (req, res) => {
     const notifications = await Notifications.find({});
+
+    // const username = await Notifications.aggregate([
+    //     {
+    //         $match: {
+    //             _id: new mongoose.Types.ObjectId(userId),
+    //         },
+    //     },
+    //     {
+    //         $lookup: {
+    //         from: "users",
+    //         localField: "owner",
+    //         foreignField: "_id",
+    //         as: "user",
+    //         },
+    //     },
+    // ])
     res.status(200).json({ notifications });
 });
 

@@ -14,6 +14,9 @@ const ContactUsSchema = new mongoose.Schema({
         type: String,
         ref: "User",
     },
+    reply: {
+        type: String,
+    }
 });
 
 module.exports = mongoose.model("ContactUs", ContactUsSchema);

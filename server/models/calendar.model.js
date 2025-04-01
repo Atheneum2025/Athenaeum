@@ -9,6 +9,10 @@ const CalendarSchema = new mongoose.Schema({
     },
     date: {
         type: Date,
+    },
+    reminderSent: {
+        type: Boolean,
+        default: false
     }
 })
 

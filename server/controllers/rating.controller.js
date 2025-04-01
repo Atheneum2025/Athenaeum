@@ -5,7 +5,6 @@ const asyncWrapper = require("../middlewares/async");
 const {} = require("mongoose");
 
 const rateCourse = asyncWrapper(async (req, res) => {
-    console.log("rating");
     const { courseId, rating } = req.body;
     const userId = req.user;
     const course = await Courses.findById(courseId);
@@ -13,11 +12,11 @@ const rateCourse = asyncWrapper(async (req, res) => {
     // Check if user has already rated this course
     let existingRating = await Rating.findOne({ courseId, userId });
     if (existingRating) {
-        console.log("yes");
+        const previousRating = existingRating.rating;
         existingRating.rating = rating;
         await existingRating.save();
 
-        course.totalRatings += 1;
+        course.ratingSum -= previousRating;
         course.ratingSum += rating;
 
         course.rating = parseFloat((course.ratingSum / course.totalRatings).toFixed(5));
@@ -45,15 +44,11 @@ const rateCourse = asyncWrapper(async (req, res) => {
 });
 
 const getRating = asyncWrapper(async (req, res) => {
-    const courseId = req.params.courseId;
-    const ratings = await Rating.find({ courseId });
+    const {courseId} = req.params;
+    const userId = req.user._id;
+    const ratings = await Rating.findOne({ courseId: courseId, userId: userId });
 
-    if (ratings.length === 0)
-        return res.json({ success: true, averageRating: 0, ratings: [] });
-
-    const averageRating =
-        ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length;
-    res.json({ success: true, averageRating, ratings });
+    res.json({ ratings });
 });
 
 module.exports = { rateCourse, getRating };

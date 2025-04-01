@@ -49,9 +49,9 @@ router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materia
   .post(verifyJWT, createViewLater)
 router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/viewLater/:viewLaterId")
   .delete(verifyJWT, deleteViewLater);
-router.route("/:courseName/rate")
+router.route("/:courseId/rate")
   .post(verifyJWT, rateCourse)
-  .get(getRating)
+  .get(verifyJWT, getRating)
 // router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/status')
 //     .put(verifyJWT, togglePublishMaterial);
 // coder coder dark

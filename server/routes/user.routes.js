@@ -45,6 +45,7 @@ router
   .post(verifyJWT, createEvent);
 router.route("/:userId/calendar/:id")
   .delete(verifyJWT, deleteEvent)
+  
 // router.route('/api/v1/user').get(Verify, (req, res) => {
 //     res.status(200).json({
 //         status: "success",

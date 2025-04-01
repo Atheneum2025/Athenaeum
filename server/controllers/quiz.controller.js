@@ -28,7 +28,6 @@ const createLeaderboard = asyncWrapper( async(req, res) => {
     const {quizId} = req.params;
     const user = req.user;
     const {currentScore : score} = req.body;
-    console.log(score)
     // if(!userId){
     //     return res.status(400).json({message: "unauthorised"})
     // }
@@ -38,7 +37,6 @@ const createLeaderboard = asyncWrapper( async(req, res) => {
 
 const getLeaderboard = asyncWrapper( async(req, res) => {
     const {quizId} = req.params;
-    
     const leaderboard = await Leaderboard.find({quiz: quizId});
     res.status(200).json({leaderboard});
 })

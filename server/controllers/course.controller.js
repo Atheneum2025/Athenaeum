@@ -14,7 +14,6 @@ const createCourse = asyncWrapper(async (req, res) => {
 // done
 const getCourse = asyncWrapper(async (req, res) => {
     const { courseName } = req.params;
-    console.log(courseName);
     const courses = await Course.findOne({ coursename: courseName });
 
     if (!courses) {
@@ -28,7 +27,6 @@ const getCourse = asyncWrapper(async (req, res) => {
 // const getCourse = asyncWrapper(async (req, res) => {
 
 //     const { courseId } = req.params;
-//     console.log(courseId);
 //     const course = await Course.findById(courseId);
 
 //     if (!course) {
@@ -62,13 +60,11 @@ const getAllCourses = asyncWrapper(async (req, res) => {
         totalPages: Math.ceil(totalCourses / limitNumber),
         currentPage: pageNumber,
     });
-    console.log("get all courses");
 });
 
 const giveAllCourses = asyncWrapper(async (req, res) => {
     const courses = await Course.find({});
     res.status(200).json({ courses });
-    console.log("get all courses");
 });
 // not complete yet
 const deleteCourse = asyncWrapper(async (req, res) => {
@@ -115,13 +111,20 @@ const updateCourse = asyncWrapper(async (req, res) => {
     // when we update a course , all the contents of the course should be updated
     // update subject, unit and material
     const { courseName } = req.params;
-    // console.log(req.body)
-    // console.log(courseName)
     const course = await Course.findOneAndUpdate(
         { coursename: courseName },
-        req.body
+        {
+            $set: {
+                coursename: req.body.editCoursename,
+                description: req.body.editCoursedescription,
+                keywords: req.body.editCourseKeywords,
+            },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
     );
-    // console.log(course)
     if (!course) {
         return res
             .status(404)

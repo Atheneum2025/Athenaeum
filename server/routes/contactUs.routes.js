@@ -10,6 +10,6 @@ const {
 
 
 router.route("/").get(verifyJWT, getAllMessages).post(verifyJWT, sendMessage);
-router.route("/:notificationId/").post(replyMessage);
+router.route("/:messageId/").post(replyMessage);
 
 module.exports = router;

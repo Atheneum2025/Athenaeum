@@ -51,15 +51,15 @@ const sendMessage = asyncWrapper(async( req, res) => {
 const replyMessage = asyncWrapper(async (req, res) => {
     const userId = req.user?._id;
     const {replyMessage} = req.body;
-    const {notificationId} = req.params;
+    const {messageId} = req.params;
 
-    const notification = await ContactUs.findByIdAndUpdate(
-        notificationId,
-        { $set: {sender: userId, message: replyMessage } },
+    const message = await ContactUs.findByIdAndUpdate(
+        messageId,
+        { $set: { reply: replyMessage } },
         { new: true },
         { runValidators: true }
     );
-    if(!notification){
+    if(!message){
         return res.status(404).json({message: "not found"});
     }
 

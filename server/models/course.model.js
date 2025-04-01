@@ -50,8 +50,9 @@ CourseSchema.pre("findOneAndUpdate", async function (next) {
     const courseId = this.getQuery().coursename;
     const updateData = this.getUpdate(); // Get the update data (e.g., coursename, description)
 
-    const newCourseName = updateData.coursename;
-    console.log(courseId);
+    const newCourseName = updateData.$set.coursename;
+    console.log(newCourseName);
+    console.log(courseId)
     await Subject.updateMany(
         { course: courseId },
         { $set: { course: newCourseName } }

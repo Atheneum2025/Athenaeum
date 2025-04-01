@@ -37,7 +37,6 @@ const SubjectSchema = new mongoose.Schema(
 
 SubjectSchema.pre('findOneAndDelete', async function (next) {
     const subjectId = this.getQuery().subjectname;
-    console.log(subjectId)
     await Unit.deleteMany({ subject: subjectId });
     console.log(`Deleted all subjects related to course ID: ${subjectId}`)
     next();
@@ -47,7 +46,7 @@ SubjectSchema.pre('findOneAndUpdate', async function (next) {
     const subjectId = this.getQuery().subjectname;
     const updateData = this.getUpdate(); // Get the update data (e.g., coursename, description)
 
-    const newSubjectName = updateData.subjectname;
+    const newSubjectName = updateData.$set.subjectname;
     console.log(subjectId);
     await Unit.updateMany({ subject: subjectId }, { $set: { subject: newSubjectName } })
     await Material.updateMany({subject: subjectId}, { $set: {subject: newSubjectName}});

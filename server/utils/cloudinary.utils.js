@@ -1,12 +1,11 @@
 const { v2: cloudinary } = require("cloudinary");
-const { response } = require("express");
 const fs = require("fs");
 const path = require("path");
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
-  api_secret: process.env.API_KEY_SECRET, // Click 'View API Keys' above to copy your API secret
+  api_secret: process.env.API_KEY_SECRET,
 });
 
 const uploadOnCloudinary = async (localFilePath, size) => {
@@ -37,10 +36,8 @@ const uploadOnCloudinary = async (localFilePath, size) => {
     } else if (documentExtensions.includes(fileExtension)) {
       type = "raw";
     } else {
-      console.log("unrecognized file")
       type = "auto";
     }
-    console.log(type)
     let response;
     if (type == "image") {
       response = await cloudinary.uploader.upload(localFilePath, {
