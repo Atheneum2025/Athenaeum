@@ -56,9 +56,16 @@ const UserSchema = new mongoose.Schema(
     phoneNo: {
       type: Number,
     },
+    collegeNo: {
+      type: Number,
+    },
+    prNo: {
+      type: Number,
+    },
     viewCount: {
       type:Number,
       default:0,
+      min: 0,
     }
   },
   {

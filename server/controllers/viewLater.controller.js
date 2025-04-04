@@ -53,12 +53,29 @@ const getAllViewLaters = asyncWrapper(async (req, res) => {
 const deleteViewLater = asyncWrapper(async (req, res) => {
   const { materialId } = req.params;
   const userId = req.user._id;
+
+  const user = await User.findById(userId);
+  user.viewCount = user.viewCount > 0 ? user.viewCount - 1 : user.viewCount;
+  await user.save();
   await ViewLater.findOneAndDelete({ user: userId, materialId: materialId });
   res.status(200).json({ message: "Removed successfully!" });
 });
 
+const deleteAllViewLater = asyncWrapper(async (req, res) => {
+  const userId = req.user._id;
+
+  const deletedAll = await ViewLater.deleteMany({user: userId});
+  if(!deletedAll){
+    console.log('couldnot delete');
+  }
+  const user = await User.findById(userId);
+  user.viewCount = 0
+  await user.save();
+  res.status(200).json({message: "deleted all view laters"});
+})
 module.exports = {
   createViewLater,
   getAllViewLaters,
   deleteViewLater,
+  deleteAllViewLater,
 };

@@ -87,6 +87,21 @@ const updateUser = asyncWrapper(async (req, res) => {
     res.status(200).json({ user });
 });
 
+const requestToChangeRole = asyncWrapper(async (req, res) => {
+    const { id: userId } = req.params;
+    const { phoneNo, collegename, collegenumber,prNo } = req.body;
+    const message = `A user with Id ${userId} and phone number ${phoneNo}, wants to become a prefessor from college ${collegename} with the number ${collegenumber}. The PR number is ${prNo}`;
+    const notify = new Notifications({
+        message: message,
+        messageBy: userId,
+    });
+    await notify.save();
+    if(!notify){
+        return res.status(400).json({message: "couldnt notify"});
+    }
+    console.log(notify);
+    res.status(200).json({message: "done"});
+})
 const updateRole = asyncWrapper(async (req, res) => {
     const { id: userId } = req.params;
     const  {phoneNo}  = req.body;
@@ -221,6 +236,7 @@ module.exports = {
     getUser,
     getUserMaterial,
     updateUser,
+    requestToChangeRole,
     updateRole,
     deleteUser,
     getUserViewHistory,

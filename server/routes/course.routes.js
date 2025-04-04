@@ -5,14 +5,14 @@ const { createCourse, getCourse, getAllCourses,giveAllCourses, deleteCourse, upd
 const { createUnit, getAllUnits, getUnit, deleteUnit, updateUnit } = require('../controllers/unit.controller');
 const { uploadMaterial, displayMaterial, getAllMaterials, deleteMaterial, updateMaterial, togglePublishMaterial } = require('../controllers/material.controller');
 const { toggleMaterialSave, getAllSavedMaterials } = require("../controllers/savedMaterial.controller.js")
-const { createViewLater, getAllViewLaters, deleteViewLater } = require("../controllers/viewLater.controller.js");
+const { createViewLater, getAllViewLaters, deleteViewLater, deleteAllViewLater } = require("../controllers/viewLater.controller.js");
 const {rateCourse, getRating} = require('../controllers/rating.controller.js');
 const { upload } = require("../middlewares/multer.middleware.js")
 
 const { verifyJWT, verifyProfessor, verifyAdmin } = require("../middlewares/verify.js")
 // with coursename
 router.route('/')
-    .get(verifyJWT, getAllCourses)
+    .get(getAllCourses)
     .post(verifyJWT, createCourse)
 router.route('/c/')
     .get(giveAllCourses)
@@ -33,13 +33,13 @@ router.route('/:courseName/subject/:subjectName/unit')
     .get(getAllUnits)
 router.route('/:courseName/subject/:subjectName/unit/:unitName')
     .get(getUnit)
-    .patch(updateUnit)
-    .delete(deleteUnit)
+    .patch(verifyJWT, updateUnit)
+    .delete(verifyJWT, deleteUnit)
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material')
     .post(verifyJWT, upload.single('file'), uploadMaterial)
     .get(getAllMaterials);
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName')
-    .get(verifyJWT, displayMaterial)
+    .get( displayMaterial)
     .patch(updateMaterial)
     .delete(deleteMaterial);
 router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/save")
@@ -49,6 +49,9 @@ router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materia
   .post(verifyJWT, createViewLater)
 router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/viewLater/:viewLaterId")
   .delete(verifyJWT, deleteViewLater);
+// router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/viewLater/deleteAll")
+//   .delete(verifyJWT, deleteAllViewLater)
+
 router.route("/:courseId/rate")
   .post(verifyJWT, rateCourse)
   .get(verifyJWT, getRating)

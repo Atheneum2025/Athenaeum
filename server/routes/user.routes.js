@@ -8,6 +8,7 @@ const {
     getUser,
     getUserMaterial,
     updateUser,
+    requestToChangeRole,
     updateRole,
     deleteUser,
     getUserViewHistory,
@@ -16,7 +17,11 @@ const {
     deleteNotification,
     toggleUserActiveness,
 } = require("../controllers/user.controller");
-const {togglePublishMaterial} = require("../controllers/material.controller.js")
+const {
+    togglePublishMaterial,
+    getMaterialStats,
+    getData,
+} = require("../controllers/material.controller.js");
 const {getAllSavedMaterials} = require("../controllers/savedMaterial.controller.js")
 const {
   getAllEvents,
@@ -30,6 +35,7 @@ router.route("/").get(getAllUsers).post(createUser);
 router.route("/students").get(getAllStudents);
 router.route("/professors").get(getAllProfessors);
 router.route("/c/:id").get(getUser).patch(updateUser).delete(deleteUser);
+router.route("/c/:id/request").post(requestToChangeRole);
 router.route("/c/:id/role").patch(updateRole);
 router.route("/c/:id/materials").get(getUserMaterial);
 router.route("/history").get(verifyJWT, getUserViewHistory);
@@ -38,6 +44,8 @@ router.route("/toggleActive/:id").patch(toggleUserActiveness);
 router.route("/notifications").get( getAllNotifications);
 router.route("/notification/:notificationId").delete( deleteNotification);
 router.route("/notification/:notificationId/publish").patch(togglePublishMaterial);
+router.route("/materials/stats").get(verifyJWT, getMaterialStats);
+router.route("/materials/count").get(verifyJWT, getData);
 router.route("/save").get(verifyJWT, getAllSavedMaterials);
 router
   .route("/:userId/calendar")

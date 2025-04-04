@@ -127,7 +127,7 @@ const updateSubject = asyncWrapper(async (req, res) => {
   );
 
   if (!subject) {
-    return res.status(404).json({ msg: `no subject with id : ${subjectname}` });
+    return res.status(404).json({ msg: `no subject with id : ${subjectName}` });
   }
   res.status(200).json({ subject });
 });
