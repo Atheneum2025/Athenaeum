@@ -19,7 +19,7 @@ const rateCourse = asyncWrapper(async (req, res) => {
         course.ratingSum -= previousRating;
         course.ratingSum += rating;
 
-        course.rating = parseFloat((course.ratingSum / course.totalRatings).toFixed(5));
+        course.rating = parseFloat((course.ratingSum / course.totalRatings).toFixed(2));
 
         await course.save();
         return res.json({

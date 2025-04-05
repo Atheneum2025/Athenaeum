@@ -12,6 +12,6 @@ const ViewLaterSchema = mongoose.Schema({
         ref: "User"
     }
 
-})
+}, {timestamps: true})
 
 module.exports = mongoose.model("ViewLater", ViewLaterSchema);

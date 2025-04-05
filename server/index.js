@@ -21,13 +21,7 @@ const calendar = require('./routes/calendar.routes.js');
 const viewLater = require('./routes/viewLater.routes.js');
 const contactUs = require('./routes/contactUs.routes.js');
 
-// const {sendMessageToAdmin} = require("./utils/contactUs.utils.js")
-// const upload = require('./routes/upload.routes');
-// const download = require('./routes/download.routes');
-
 const { verifyJWT, verifyAdmin, verifyProfessor } = require('./middlewares/verify.js');
-
-
 //middleware
 
 app.use(
@@ -71,53 +65,18 @@ app.use('/api/v1/quiz/', quiz);
 app.use('/api/v1/viewLater/', viewLater);
 app.use('/api/v1/contactUs/', contactUs);
 
-app.get('/api', (req, res) => {
-    res.json({ message: 'hello from rishon server' })
+app.get('/api/v1/', (req, res) => {
+    res.json({ message: 'hello from rishons server' })
     console.log('hit')
 })
 
-// app.post('/upload', upload.single('file'), function (req, res) {
-
-//     const videoPath = req.file.path
-//     const outputPath = `./uploads/courses/223`
-//     const hlsPath = `${outputPath}/index.m3u8`
-
-//     ;
-// })
-// app.get('/video', (req, res) => {
-//     console.log('hit')
-//     const videoPath = path.resolve(__dirname, 'public/videoFile.mp4');
-//     const stat = fs.statSync(videoPath);
-//     const fileSize = stat.size;
-//     const range = req.headers.range;
-
-//     if (range) {
-//         const parts = range.replace(/bytes=/, '').split('-');
-//         const start = parseInt(parts[0], 10);
-//         const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-
-//         if (start >= fileSize) {
-//             res.status(416).send('requested range not satisfiable\n');
-//             return;
-//         }
-
-//         const chunkSize = end - start + 1;
-//         const file = fs.createReadStream(videoPath, { start, end });
-//         const headers = {
-//             'Content-Range': 'bytes ${start}-${end}/${fileSize}',
-//             'Accept-Ranges': 'bytes',
-//             'Content-Length': chunkSize,
-//             'Content-Type': 'video/mp4',
-//         };
-
-//         res.writeHead(206, headers);
-//         fs.createReadStream(videoPath).pipe(res);
-//     }
-// })
+app.all('/', (req, res) => {
+    console.log("Welcome to Athenaeum");
+    res.status(200).json({message: 'Welcome to Athenaeum'})
+})
 
 const start = async () => {
     try {
-
         await connectDB(process.env.MONGO_URI);
         app.listen(PORT, (err) => {
             if (err) console.log(err);

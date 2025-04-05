@@ -44,7 +44,7 @@ const QuizSchema = new mongoose.Schema({
         type: String,
         required: true,
     }
-})
+},{timestamps: true})
 
 // QuizSchema.post('save', async function(next){
 //     const notificationCreated = await new Notification({

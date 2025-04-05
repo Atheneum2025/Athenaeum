@@ -351,12 +351,14 @@ const getMaterialStats = async (req, res) => {
 };
 
 const getData = asyncWrapper(async (req, res)=>{
-    const courses = courseCount = await Course.countDocuments({});
-    const subjects = courseCount = await Subject.countDocuments({});
-    const units = courseCount = await Unit.countDocuments({});
-    const materials = courseCount = await Material.countDocuments({});
-    
-    res.status(200).json({courses, subjects, units, materials});
+    const courseCount = await Course.countDocuments({});
+    const subjectCount = await Subject.countDocuments({});
+    const unitCount = await Unit.countDocuments({});
+    const materialCount = await Material.countDocuments({});
+    const userCount = await User.countDocuments({});
+    const publishedMaterialCount = await Material.countDocuments({isPublished: true});
+    const notPublishedMaterialCount = await Material.countDocuments({isPublished : false});
+    res.status(200).json({courseCount, subjectCount, unitCount, materialCount, userCount, publishedMaterialCount, notPublishedMaterialCount});
 })
 
 module.exports = {

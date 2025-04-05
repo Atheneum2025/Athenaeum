@@ -50,8 +50,8 @@ const getAllCourses = asyncWrapper(async (req, res) => {
     const sortOrder = SortType === "1" ? 1 : -1;
 
     const courses = await Course.find({})
-        .sort({ [sortBy]: sortOrder }) // Sorting
-        .skip((pageNumber - 1) * limitNumber) // Pagination (skip previous pages)
+        .sort({ [sortBy]: sortOrder })
+        .skip((pageNumber - 1) * limitNumber)
         .limit(limitNumber);
 
     const totalCourses = await Course.countDocuments();
@@ -134,9 +134,12 @@ const updateCourse = asyncWrapper(async (req, res) => {
     res.status(200).json({ course });
 });
 
-const changeRatings = asyncWrapper(async (req, res) => {
-    const { courseId } = req.params;
-});
+const getCoursesHighestRatings = asyncWrapper( async (req, res) => {
+    const topFourCourses = await Course.find().sort({rating: -1}).limit(4);
+
+    res.status(200).json({topFourCourses});
+})
+
 
 module.exports = {
     createCourse,
@@ -145,5 +148,5 @@ module.exports = {
     giveAllCourses,
     deleteCourse,
     updateCourse,
-    changeRatings,
+    getCoursesHighestRatings,
 };

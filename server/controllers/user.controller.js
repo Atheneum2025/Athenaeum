@@ -90,7 +90,7 @@ const updateUser = asyncWrapper(async (req, res) => {
 const requestToChangeRole = asyncWrapper(async (req, res) => {
     const { id: userId } = req.params;
     const { phoneNo, collegename, collegenumber,prNo } = req.body;
-    const message = `A user with Id ${userId} and phone number ${phoneNo}, wants to become a prefessor from college ${collegename} with the number ${collegenumber}. The PR number is ${prNo}`;
+    const message = `A user with PR number is ${prNo} and phone number ${phoneNo}, wants to become a prefessor from college ${collegename} with the number ${collegenumber}.`;
     const notify = new Notifications({
         message: message,
         messageBy: userId,

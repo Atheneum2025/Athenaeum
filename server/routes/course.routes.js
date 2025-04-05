@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const { createSubject, getSubject, getAllSubjects, deleteSubject, updateSubject } = require('../controllers/subject.controller');
-const { createCourse, getCourse, getAllCourses,giveAllCourses, deleteCourse, updateCourse } = require('../controllers/course.controller');
+const {
+    createCourse,
+    getCourse,
+    getAllCourses,
+    giveAllCourses,
+    deleteCourse,
+    updateCourse,
+    getCoursesHighestRatings,
+} = require("../controllers/course.controller");
 const { createUnit, getAllUnits, getUnit, deleteUnit, updateUnit } = require('../controllers/unit.controller');
 const { uploadMaterial, displayMaterial, getAllMaterials, deleteMaterial, updateMaterial, togglePublishMaterial } = require('../controllers/material.controller');
 const { toggleMaterialSave, getAllSavedMaterials } = require("../controllers/savedMaterial.controller.js")
@@ -16,6 +24,8 @@ router.route('/')
     .post(verifyJWT, createCourse)
 router.route('/c/')
     .get(giveAllCourses)
+router.route("/highest-ratings/")
+    .get(getCoursesHighestRatings)
 router.route('/:courseName')
     .get(getCourse)
     .patch(verifyJWT, updateCourse)

@@ -56,6 +56,9 @@ const UserSchema = new mongoose.Schema(
     phoneNo: {
       type: Number,
     },
+    collegeName: {
+      type: String,
+    },
     collegeNo: {
       type: Number,
     },
