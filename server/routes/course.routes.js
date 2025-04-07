@@ -49,7 +49,7 @@ router.route('/:courseName/subject/:subjectName/unit/:unitName/material')
     .post(verifyJWT, upload.single('file'), uploadMaterial)
     .get(getAllMaterials);
 router.route('/:courseName/subject/:subjectName/unit/:unitName/material/:materialName')
-    .get( displayMaterial)
+    .get(verifyJWT, displayMaterial)
     .patch(updateMaterial)
     .delete(deleteMaterial);
 router.route("/:courseName/subject/:subjectName/unit/:unitName/material/:materialName/save")

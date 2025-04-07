@@ -33,7 +33,9 @@ const uploadAvatar = asyncWrapper(async (req, res) => {
     if (!user) {
         return res.status(401).json({ message: "no user found" });
     }
+    console.log(user)
     const avatarLocalPath = req.file?.path;
+    console.log(avatarLocalPath)
     if (!avatarLocalPath) {
         return res
             .status(400)
@@ -42,7 +44,7 @@ const uploadAvatar = asyncWrapper(async (req, res) => {
     const fileSize = req.file?.size;
 
     const avatar = await uploadOnCloudinary(avatarLocalPath, fileSize);
-
+    console.log(avatar)
     if (!avatar) {
         return res.status(500).json({ message: "avatar not found" });
     }
@@ -51,6 +53,7 @@ const uploadAvatar = asyncWrapper(async (req, res) => {
         { $set: { avatar: avatar.url } },
         { new: true }
     );
+    res.status(200).json({message: "profile photo updated"})
 });
 const getUser = asyncWrapper(async (req, res) => {
     const { id: UserID } = req.params;

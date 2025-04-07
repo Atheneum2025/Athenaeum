@@ -37,11 +37,11 @@ const uploadMaterial = asyncWrapper(async (req, res) => {
     }
 
     const fileSize = req.file?.size;
-    // const material = await uploadOnCloudinary(materialLocalPath, fileSize);
+    const material = await uploadOnCloudinary(materialLocalPath, fileSize);
 
-    // if (!material) {
-    //   return res.status(400).json({ message: "Material file required" });
-    // }
+    if (!material) {
+      return res.status(400).json({ message: "Material file required" });
+    }
 
     const owner = await User.aggregate([
         {
@@ -71,18 +71,18 @@ const uploadMaterial = asyncWrapper(async (req, res) => {
         subject: subjectName,
         unit: unitName,
         owner: owner[0].username,
-        // fileType: material.resource_type,
-        // materialURL: material.url,
-        // materialP_id: material.public_id,
+        fileType: material.resource_type,
+        materialURL: material.url,
+        materialP_id: material.public_id,
     });
     await newMaterial.save();
 
     // make a entry in users notification
-    const notified = new Notifications({
-        message: "Please Publish This Material",
-        messageBy: userId,
-        material: newMaterial.materialname,
-    });
+        const notified = new Notifications({
+            message: "Please Publish This Material",
+            messageBy: userId,
+            material: newMaterial.materialname,
+        });
     await notified.save();
 
     // Add the subject to the course
@@ -108,6 +108,7 @@ const displayMaterial = asyncWrapper(async (req, res) => {
     // add to viewHistory
     // get userId from req.user , after verifying
     const userId = req.user?._id;
+    console.log(req.user)
     // find user in database;
     const user = await User.findById(userId);
 
@@ -121,11 +122,12 @@ const displayMaterial = asyncWrapper(async (req, res) => {
     // push viewed material to viewHistory in user model
     user?.viewHistory.push({ materialId: materialName });
     await user?.save();
-
+    console.log(userId);
     const found = await ViewLater.findOne({
         materialname: materialname,
         user: userId,
     });
+    console.log(found)
     if (found) {
         user.viewCount = (user.viewCount || 0) + 1;
         await user.save();
@@ -207,10 +209,16 @@ const getAllMaterials = asyncWrapper(async (req, res) => {
 });
 
 const getMaterialsByUser = asyncWrapper(async (req, res) => {
-    const userId = req.user?._id;
+    const userId = req.user?.username;
     const materials = await Material.find({ owner: userId });
     res.status(200).json({ materials });
 });
+
+const getMaterialForStudent = asyncWrapper(async (req, res) => {
+    const userId = req.user?.username;
+    const materials = await Material.find({ owner: userId });
+    res.status(200).json({ materials });
+})
 
 // test
 // delete a material
@@ -366,6 +374,7 @@ module.exports = {
     displayMaterial,
     getAllMaterials,
     getMaterialsByUser,
+    getMaterialForStudent,
     deleteMaterial,
     updateMaterial,
     giveAllmaterials,

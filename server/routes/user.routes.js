@@ -5,6 +5,7 @@ const {
     getAllStudents,
     getAllProfessors,
     createUser,
+    uploadAvatar,
     getUser,
     getUserMaterial,
     updateUser,
@@ -28,10 +29,12 @@ const {
   createEvent,
   deleteEvent,
 } = require("../controllers/calendar.controller.js");
+const { upload } = require("../middlewares/multer.middleware.js")
 
 const { verifyJWT } = require("../middlewares/verify.js");
 
 router.route("/").get(getAllUsers).post(createUser);
+router.route("/avatar").post(verifyJWT, upload.single('file'), uploadAvatar);
 router.route("/students").get(getAllStudents);
 router.route("/professors").get(getAllProfessors);
 router.route("/c/:id").get(getUser).patch(updateUser).delete(deleteUser);

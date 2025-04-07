@@ -1,39 +1,39 @@
-const mongoose = require('mongoose')
-const Notifications = require('../models/notifications.model.js');
-const Users = require('../models/user.model.js');
-const ContactUs = require('../models/contactus.model.js')
-const asyncWrapper = require('../middlewares/async.js');
+const mongoose = require("mongoose");
+const Notifications = require("../models/notifications.model.js");
+const Users = require("../models/user.model.js");
+const ContactUs = require("../models/contactus.model.js");
+const asyncWrapper = require("../middlewares/async.js");
 
 const getAllMessages = asyncWrapper(async (req, res) => {
     // const userId = req.user?._id;
-    const messages = await ContactUs.find({})
-    res.status(200).json({messages});
-})
+    const messages = await ContactUs.find({});
+    res.status(200).json({ messages });
+});
 
-const sendMessage = asyncWrapper(async( req, res) => {
+const sendMessage = asyncWrapper(async (req, res) => {
     const userId = req.user?._id;
-    const {message} = req.body;
+    const { message } = req.body;
     const user = await Users.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(userId)
-            }
+                _id: new mongoose.Types.ObjectId(userId),
+            },
         },
         {
             $lookup: {
                 from: "users",
                 localField: "messageBy",
                 foreignField: "_id",
-                as: "user"
-            }
+                as: "user",
+            },
         },
         {
             $project: {
                 password: 0,
                 refreshToken: 0,
-            }
-        }
-    ])
+            },
+        },
+    ]);
 
     const messaged = new ContactUs({
         message: message,
@@ -41,17 +41,17 @@ const sendMessage = asyncWrapper(async( req, res) => {
     });
     await messaged.save();
 
-    if(!messaged){
+    if (!messaged) {
         return res.status(400).json({ message: "ok" });
     }
 
-    res.status(200).json({message: "done"});
-})
+    res.status(200).json({ message: "done" });
+});
 
 const replyMessage = asyncWrapper(async (req, res) => {
     const userId = req.user?._id;
-    const {replyMessage} = req.body;
-    const {messageId} = req.params;
+    const { replyMessage } = req.body;
+    const { messageId } = req.params;
 
     const message = await ContactUs.findByIdAndUpdate(
         messageId,
@@ -59,20 +59,32 @@ const replyMessage = asyncWrapper(async (req, res) => {
         { new: true },
         { runValidators: true }
     );
-    if(!message){
-        return res.status(404).json({message: "not found"});
+    if (!message) {
+        return res.status(404).json({ message: "not found" });
     }
 
-    res.status(200).json({message: "reply sent"})
-})
+    res.status(200).json({ message: "reply sent" });
+});
+
+const guestSendMessage = asyncWrapper(async (req, res) => {
+    const { email, message } = req.body;
+
+    const fullMessage = `You have recieved a message from a guest user ${email} : ${message}`
+    const messaged = new ContactUs({
+        message: fullMessage,
+    });
+    await messaged.save();
+
+    if (!messaged) {
+        return res.status(400).json({ message: "ok" });
+    }
+
+    res.status(200).json({ message: "done" });
+});
 
 module.exports = {
     getAllMessages,
     sendMessage,
-    replyMessage
-}
-
-
-
-
-
+    replyMessage,
+    guestSendMessage,
+};

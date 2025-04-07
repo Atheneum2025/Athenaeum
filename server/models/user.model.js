@@ -42,10 +42,6 @@ const UserSchema = new mongoose.Schema(
       type: String, //cloudinary url
     },
     viewHistory: [viewHistorySchema],
-    permissions: {
-      type: [String],
-      default: ["upload", "download", "watch", "read"],
-    },
     isActive:{
       type:Boolean,
       default:true
